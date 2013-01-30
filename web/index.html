@@ -187,6 +187,60 @@
             said that <em>it is</em> a self link, because it is an object containin a <code>href</code>
             property) to a resource that represents the full trip.</p>
 
+            <h4 id="responses">Response Structure</h4>
+
+            <p>Each response of the API follows the following rules:</p>
+
+            <ul>
+                <li>The response is always a JSON object (not an array)</li>
+                <li>The response object has a property contain the main response body (mandatory).
+                    Each resource specifies which property is the main response body</li>
+                <li>The response object conains an optiona header property. Each resource 
+                    specifies which property is the header, if any</li>
+                <li>The response object may contain optional metadata</li>
+            </ul>
+
+            <p>Example:</p>
+            <pre>
+{
+    "header": {
+        "id": "8502996",
+        "name": "Aarau, Bahnhof",
+        "type": "station",
+        "score": null,
+        "coordinate":
+        {
+        "type" : "WGS84",
+        "x": "8050864",
+        "y": "47392020"
+    },
+    "stationboard" : [
+        {
+            "station": {
+                "id": "8502996",
+                "name": "Aarau, Bahnhof",
+                "score": null,
+                "coordinate":
+                {
+                    "type" : "WGS84",
+                    "x": "8050864",
+                    "y": "47392020"
+                },
+                "etc": "..."
+            },
+            "arrival": null,
+        },
+        {
+            "satation": "...",
+        }
+    ]
+}
+            </pre>
+
+            <p>Here, the <code>stationboard</code> is the main response body property. 
+               The station board response's header property is called <code>header</code>
+               and it tells us that for which station this data is about.</p>
+               
             <h3 id="api-resources">API Resources</h3>
 
             <p>The Transport API builds on REST style resources which respond
