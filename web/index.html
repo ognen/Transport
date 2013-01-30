@@ -18,7 +18,7 @@
     <div class="wrapper">
         <header>
             <h1>Transport</h1>
-            <p>Swiss public transport API</p>
+            <p>Swiss public transport API 2.0</p>
         </header>
 
         <article>
@@ -43,6 +43,14 @@
 
             <ul>
                 <li>
+                    <a href="#general">General</a>
+                    <ul>
+                        <li><a href="#hyperlinks">Hyperlinks</a></li>
+                        <li><a href="#responses">Response Structure</a></li>
+                        <li><a href="#metadata">Metadata and Extensibility</a></li>
+                    </ul>
+                </li>
+                <li>
                     <a href="#api-resources">Resources</a>
                     <ul>
                         <li><a href="#locations">/locations</a></li>
@@ -66,9 +74,74 @@
                 </li>
             </ul>
 
+            <h3 id="hyperlinks">Hyperlinks</h3>
+
+            <p>The V2 API stipulates that all navigation from responses to new requests
+            <strong>should</strong> be done by reading and interpreting the embedded links in the JSON objects.</p>
+
+            <p>E.g. if one knows the id of a station (e.g. <code>4556</code>), one is not allowed to immediately
+            construct the URL <code>/stationboard?id=4556</code> but should follow the embedded 
+            stationboard link in the response obtained by querying <em>locations</em> endpoint.</p>
+
+            <h4 id="link-encoding">Encoding links in JSON</h4>
+
+            <p>Any JSON object that contains a property named <code>href</code>
+            is considered a <strong>hyperlink</strong>. The value of the <code>href</code>
+            property may contain both <em>absolute URIs</em> as well as <em>relative references</em>.
+            These URIs <strong>must be</strong> resolved, as per 
+            <a href="http://tools.ietf.org/html/rfc3986">RFC 3986</a> (a functionality available in 
+            almost every developer toolkit).</p>
+
+            <p>For example, the following object is a link:</p>
+            <pre>{ "href": "./stationboard/123456" }</pre>
+
+            <p>The link object can have other properties as well</p>
+
+            <h4>The Relation of the link to its containing object</h4>
+
+            <p>The meaining of a link is always determined <em>in relation</em> with its containing
+            object. The relation between the containing object and the embedded link si given 
+            <em>by the property name</em> under which the link is contained within the parent.</p>
+
+            <p>For example, in the object:</p>
+
+            <pre>
+{
+    "name": "Zurich HB",
+    "type": "station",
+    "stationboard": { "href": "./stationboard/123456" }
+}
+            </pre>
+
+            <p>We interpret that the (relative) URI <code>./stationboard/123456</code> <em>points
+            to a stationboard for the station Zurich HB</em> (because the link object is found under
+            the property <code>stationboard</code> of the station object named "Zurich HB".</p>
+
+            <h4>Standard Link properties</h4>
+
+            The following property names are <strong>reserved for standard links</strong>.
+
+            <table class="table table-bordered">
+                <thead>
+                    <th>Property Name</th>
+                    <th>Description</th>
+                </thead>
+                    <tr>
+                        <td><code>stationboard</code></td>
+                        <td>Points to a <a href="#stationboard">stationboard</a> resource related to the containing object</td>
+                    </tr>
+                    <tr>
+                        <td><code>locations</code></td>
+                        <td>
+                            <p>Points to a <a href="#locations">locations</a> resource related to the containing object.</p>
+                        </td>
+                    </tr>
+            </table>
+
             <h3 id="api-resources">API Resources</h3>
 
-            <p>The Transport API builds on REST style resources which respond in JSON. Individual resources are detailed below.</p>
+            <p>The Transport API builds on REST style resources which respond
+            <in JSON. Individual resources are detailed below.</p>
 
             <hr/>
 
