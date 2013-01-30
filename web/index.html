@@ -115,7 +115,21 @@
 
             <p>We interpret that the (relative) URI <code>./stationboard/123456</code> <em>points
             to a stationboard for the station Zurich HB</em> (because the link object is found under
-            the property <code>stationboard</code> of the station object named "Zurich HB".</p>
+            the property <code>stationboard</code> of the station object named "Zurich HB").</p>
+
+            <p>Similarly</p>
+            <pre>
+{
+    "name": "Zurich",
+    "type": "locality",
+    "locations": { "href": "./locations/zuerich" }
+}
+            </pre>
+
+            <p>Is interpreted as <em>the link <code>./locations/zuerich</code> points to 
+            a <a href="#locations">locations</a> resource where all the locations within 
+            the city of Zürich can be found</em> because the link object is found under a
+            <code>locations</code> property inside a the Zurich locality object.</p>
 
             <h4>Standard Link properties</h4>
 
@@ -126,6 +140,7 @@
                     <th>Property Name</th>
                     <th>Description</th>
                 </thead>
+                <tbody>
                     <tr>
                         <td><code>stationboard</code></td>
                         <td>Points to a <a href="#stationboard">stationboard</a> resource related to the containing object</td>
@@ -136,6 +151,11 @@
                             <p>Points to a <a href="#locations">locations</a> resource related to the containing object.</p>
                         </td>
                     </tr>
+                    <tr>
+                        <td><code>connections</code></td>
+                        <td>Points to a <a href="#connections">connections</a> resource related to the containing object.</td>
+                    </tr>
+                </tbody>
             </table>
 
             <h3 id="api-resources">API Resources</h3>
