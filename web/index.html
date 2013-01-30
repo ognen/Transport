@@ -18,7 +18,7 @@
     <div class="wrapper">
         <header>
             <h1>Transport</h1>
-            <p>Swiss public transport API 2.0</p>
+            <p>Swiss public transport API 2.0 (draft 3)</p>
         </header>
 
         <article>
@@ -157,6 +157,35 @@
                     </tr>
                 </tbody>
             </table>
+
+            <h4>Self-Links</h4>
+
+            <p>A self-link is an object (also a link) pointing to a resource of the same object, 
+            usually in greater details. It is usually used in collection resources (such as 
+            trip objects in stationboars to point to the full-version of the trips themselves.</p>
+
+            <p>For example:</p>
+            <pre>
+{
+    "stationboard": [
+        {
+            "trip": {
+                "href": "./trips/123456",
+                "line": "2",
+                "category": "bus"
+            },
+            "station": {
+                "id": "8502996",
+                "name": "Aarau, Bahnhof"
+            }
+        }
+    ]
+}
+            </pre>
+
+            <p>In this response, the <code>trip</code> object contains a self link (can also be 
+            said that <em>it is</em> a self link, because it is an object containin a <code>href</code>
+            property) to a resource that represents the full trip.</p>
 
             <h3 id="api-resources">API Resources</h3>
 
