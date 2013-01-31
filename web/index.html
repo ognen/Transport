@@ -55,7 +55,7 @@
                         <li><a href="#root">Root resource</a></li>
                         <li><a href="#locations">Locations resource</a></li>
                         <li><a href="#connections">Connections resource</a></li>
-                        <li><a href="#stationboard">/stationboard</a></li>
+                        <li><a href="#stationboard">Stationboard resource</a></li>
                     </ul>
                 </li>
                 <li>
@@ -67,8 +67,9 @@
                         <li><a href="#coordinates">coordinates</a></li>
                         <li><a href="#connection">connection</a></li>
                         <li><a href="#checkpoint">checkpoint</a></li>
-                        <li><a href="#prognosis">prognosis</a></li>
+                        <li><a href="#timing">timing</a></li>
                         <li><a href="#stop">stop</a></li>
+                        <li><a href="#trip">trip</a></li>
                     </ul>
                 </li>
                 <li>
@@ -589,13 +590,15 @@
             </pre>
             <hr/>
 
-            <h3 id="stationboard">/stationboard</h3>
+            <h3 id="stationboard">Stationboard resource</h3>
 
-            <p>Returns the next connections leaving from a specific location.</p>
+            <p>Returns departures leaving from a specific location.</p>
 
             <h4>Resource URL</h4>
 
-            <pre>http://transport.opendata.ch/v1/stationboard</pre>
+            <p><em>Obtained by following a <code>stationboard</code> <a href="#link">link</a>,
+            from the <a href="#root">root response</a> or a <a href="#location">location object</a>.</em></p>
+
 
             <h4>Request Parameters</h4>
 
@@ -611,38 +614,131 @@
                 <tbody>
                 <tr>
                     <td><code>station</code></td>
-                    <td>required</td>
-                    <td>Specifies the location of which a stationboard should be returned</td>
+                    <td>optional</td>
+                    <td>
+                        <em class="remark">(I think this is unnecessary, as station lookup should
+                         go through the locations resources)</em> 
+                         <p>Specifies the location of which a stationboard should be returned.</p>
+                         <p>Either a <code>station</code> or an <code>id</code> should be provided,
+                            unless the stationboard URL was obtained through a link inside a 
+                            <a href="#location">location object</a>, in which case the stationboard is 
+                            <strong>just for that location</strong></p>
+                    </td>
                     <td>Aarau</td>
                 </tr>
                 <tr>
                     <td><code>id</code></td>
                     <td>optional</td>
-                    <td>The id of the station whose stationboard should be returned.
-                        <br />Alternative to the station parameter; one of these two is required.
-                        <br />If both an id and a station are specified the id has precedence.
+                    <td><p>The id of the station whose stationboard should be returned.</p>
+                        <p>Alternative to the station parameter; one of these two is should be provided..</p>
+                        <p>Either a <code>station</code> or an <code>id</code> should be provided,
+                            unless the stationboard URL was obtained through a link inside a 
+                            <a href="#location">location object</a>, in which case the stationboard is 
+                            <strong>just for that location</strong> and the id is unnecessary.</p>
                     </td>
                     <td>8503059 <em>(for Zurich Stadelhofen)</em></td>
                 </tr>
                 <tr>
                     <td><code>limit</code></td>
                     <td>optional</td>
-                    <td>Number of departing connections to return.
-                        <br />This is not a hard limit - if multiple connections leave at the same time it'll return any connections that leave at the same time as the last connection within the limit.<br />
+                    <td><p>Number of departing connections to return.</p>
+                        <p>This is not a hard limit - if multiple connections leave at the same time it'll return any connections that leave at the same time as the last connection within the limit.<br />
                         For example: limit=4 will return connections leaving at :
                         <ul><li>19:30</li><li>19:32</li><li>19:32</li><li>19:35</li><li>19:35</li></ul>
-                        Because one of the connections leaving at 19:35 is within the limit, all connections leaving at 19:35 are shown.
+                        Because one of the connections leaving at 19:35 is within the limit, all connections leaving at 19:35 are shown.</p>
+                        <em>It's up to the implementation to chose a default value.</em>
                     </td>
                     <td>15</td>
                 </tr>
                 <tr>
-                    <td><code>transportations</code></td>
+                    <td><code>from</code></td>
                     <td>optional</td>
-                    <td class="description">Transportation means; one or more of <code>ice_tgv_rj</code>, <code>ec_ic</code>, <code>ir</code>, <code>re_d</code>, <code>ship</code>, <code>s_sn_r</code>, <code>bus</code>, <code>cableway</code>, <code>arz_ext</code>, <code>tramway_underground</code></td>
-                    <td>?transportations[]=ec_ic&amp;transportations[]=bus</td>
+                    <td>A RFC3339 timestamp, determining from which point in time we are interested in looking at connections.</td>
+                    <td>2012-03-31T08:58:00+02:00</td>
+                </tr>
+                <tr>
+                    <td><code>to</code></td>
+                    <td>optional</td>
+                    <td>A RFC3339 timestamp, determining until which point in time we are interested in lookin at connections.</td>
+                    <td>2012-03-31T08:58:00+02:00</td>
+                </tr>
+                <tr>
+                    <td><code>categories</code></td>
+                    <td>optional</td>
+                    <td class="description">Transportation means (categories); one or more of <a href="#transport-categories">these</a>.</td>
+                    <td>?categories[]=ec_ic&amp;categories[]=bus</td>
+                </tr>
+                <tr>
+                    <td><code>lines</code></td>
+                    <td>optional</td>
+                    <td>Which lines should the quiery return. <em>Default: all</em></td>
+                    <td>?lines[]=2&amp;lines[]=3</td>
                 </tr>
                 </tbody>
             </table>
+
+            <h4>Interpreting the <code>limit</code>, <code>from</code>, to <code>parameters</code></h4>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>from</th>
+                        <th>to</th>
+                        <th>limit</th>
+                        <th>Meaning</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>n/a</td>
+                        <td>n/a</td>
+                        <td>n/a</td>
+                        <td>Return the default number of stops matching the filtering criteria, starting from now.
+</td>
+                    </tr>
+                    <tr>
+                        <td>provided</td>
+                        <td>n/a</td>
+                        <td>n/a</td>
+                        <td>Return the default number of stops matching the filtering criteria, starting from the provided time.</td>
+                    </tr>
+                    <tr>
+                        <td>provided</td>
+                        <td>n/a</td>
+                        <td>provided</td>
+                        <td>Return the specified no. of connections matching the filtering criteria, starting from now.</td>
+                    </tr>
+                    <tr>
+                        <td>provided</td>
+                        <td>provided</td>
+                        <td>provided</td>
+                        <td>Return up to the specified no. of connection matching the filtering criteria, starting from given time and no latter to the given end time.</td>
+                    </tr>
+                    <tr>
+                        <td>n/a</td>
+                        <td>provided</td>
+                        <td>n/a</td>
+                        <td>Return up to the default number of stops from now to (at most) the provided <em>to</em> value.</td>
+                    </tr>
+                    <tr>
+                        <td>provided</td>
+                        <td>provided</td>
+                        <td>n/a</td>
+                        <td>Return up to the default number of stops from <em>from</em>  to (at most) <em>to</em>.</td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><em>(one should be able to deduce the rest of the possible cases based on these)</em></p>
+
+            <h4>Interpreting the filtering parameters: <code>categories</code> and <code>lines</code></h4>
+
+            <p>When more than one filtering parameter of any kind is present, the matching criteria would means a a connection that matches any of the provided parameters. I.e. </p>
+
+            <pre>categories[]=ship&amp;lines[]=2&amp;lines[]=3</pre>
+
+            <p>should be interpreted as all connections of the lines 2 and 3 and also ships should be returned.</p>
 
             <h4>Response parameters</h4>
 
@@ -654,89 +750,118 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td><code>stationboard</code></td>
-                    <td>A list of <a href="#stop">stops</a>, showing the last stop of the line leaving that station.</td>
-                </tr>
+                    <tr>
+                        <td><code>about</code></td>
+                        <td>a <a href="#location">location object</a> identifying to what the response relates to.</td>
+                    </tr>
+                    <tr>
+                        <td><code>stationboard</code></td>
+                        <td>A list of <a href="#stop">stops</a>, showing the requested departures.</td>
+                    </tr>
                 </tbody>
             </table>
 
             <h4>Example Requests</h4>
 
-            <pre>GET http://transport.opendata.ch/v1/stationboard?station=Aarau&amp;limit=10</pre>
+            <pre>GET http://transport.opendata.ch/v2/stationboard?station=Aarau&amp;limit=10</pre>
             <p>which is the same as</p>
-            <pre>GET http://transport.opendata.ch/v1/stationboard?id=008502113&amp;limit=10</pre>
+            <pre>GET http://transport.opendata.ch/v2/stationboard?id=8502996&amp;limit=10</pre>
+            <p>which is also</p>
+            <pre>GET http://transport.opendata.ch/v2/stationboard/8502996?limit=10</pre>
 
             <h4>Example response</h4>
 
             <pre>
 {
+    "about":
+    {
+        "id": "8502996",
+        "type": "station",
+        "stationboard": { "href": "./8502996" },
+        "name": "Aarau, Bahnhof",
+        "coordinates":
+        {
+            "type" : "WGS84",
+            "x": "8050864",
+            "y": "47392020"
+        },
+    },
     "stationboard" : [
     {
-        "stop":
+        "station":
         {
-            "station":
+            "id": "8502996",
+            "type": "station",
+            "stationboard": { "href": "./8502996" },
+            "name": "Aarau, Bahnhof",
+            "coordinates":
             {
-                "id": "8502996",
-                "name": "Aarau, Bahnhof",
-                "score": null,
-                "coordinate":
-                {
-                    "type" : "WGS84",
-                    "x": "8050864",
-                    "y": "47392020"
-                }
+                "type" : "WGS84",
+                "x": "8050864",
+                "y": "47392020"
             },
+        },
+        "trip":
+        {
+            "href": "/v2/trips/1234567",
+            "category": "bus",
+            "number": "3",
+            "operator": "VBZ",
+            "direction": "Frick, Bahnhof"
+        },
+        "plan":
+        {
             "arrival": null,
             "departure": "2012-03-31T14:39:00+02:00",
-            "platform": "",
-            "prognosis":
-            {
-                "platform": null,
-                "arrival": null,
-                "departure": null,
-                "capacity1st": "-1",
-                "capacity2nd": "-1"
-            }
+            "platform": "", 
+            "capacity1st": "-1",
+            "capacity2nd": "-1"
         },
-        "name": "BUS13543",
-        "category": "BUS",
-        "number": "13543",
-        "operator": null,
-        "to": "Frick, Bahnhof"
-    },{
-        "stop":
+        "prognosis":
         {
-            "station":
-            {
-                "id": "8502996",
-                "name": "Aarau, Bahnhof",
-                "score": null,
-                "coordinate":
-                {
-                    "type": "WGS84",
-                    "x": "8050864",
-                    "y": "47392020"
-                }
-            },
+            "platform": null,
             "arrival": null,
-            "departure": "2012-03-31T14:39:00+02:00",
-            "platform": "",
-            "prognosis":
-            {
-                "platform": null,
-                "arrival": null,
-                "departure": null,
-                "capacity1st": "-1",
-                "capacity2nd": "-1"
-            }
-        },
-        "name": "Bus 2",
-        "category": "Bus",
-        "number": "2",
-        "operator": "BBA",
-        "to": "Aarau Rohr, Unterdorf"
+            "departure": "2012-03-31T14:39:44+02:00",
+            "capacity1st": "-1",
+            "capacity2nd": "-1"
+        }
     },
+    {
+        "station":
+        {
+            "id": "8502996",
+            "stationboard": { "href": "./8502996" },
+            "name": "Aarau, Bahnhof",
+            "coordinates":
+            {
+                "type": "WGS84",
+                "x": "8050864",
+                "y": "47392020"
+            }
+        },
+        "trip": 
+        {
+            "href": "/v2/trips/123459",
+            "category": "bus",
+            "number": "2",
+            "operator": "BBA",
+            "direction": "Aarau Rohr, Unterdorf"
+        },
+        "plan":
+        {
+            "arrival": null,
+            "departure": "2012-03-31T14:39:00+02:00",
+            "platform": ""
+        },
+        "prognosis":
+        {
+            "platform": null,
+            "arrival": null,
+            "departure": "2012-03-31T14:39:00+02:00",
+            "capacity1st": "-1",
+            "capacity2nd": "-1"
+        }
+    }
     // ...
     ]
 }
@@ -758,8 +883,9 @@
                 <li>The response object has a property contain the main response body (mandatory).
                     Each resource specifies which property is the main response body</li>
                 <li>The response object conains an optiona header property. Each resource 
-                    specifies which property is the header, if any</li>
-                <li>The response object may contain optional metadata</li>
+                    specifies which property is the header, if any. Usually this property is called
+                    <code>about</code></li>
+                <li>The response object may contain optional <a href="#metadata">metadata</a></li>
             </ul>
 
             <p>Example:</p>
@@ -891,7 +1017,7 @@
                 </tbody>
             </table>
 
-            <h5>Self-Links</h5>
+            <h5 id="self-link">Self-Links</h5>
 
             <p>A self-link is an object (also a link) pointing to a resource of the same object, 
             usually in greater details. It is usually used in collection resources (such as 
@@ -1051,6 +1177,9 @@
 
             <h4 id="checkpoint">Checkpoint Object</h4>
 
+            <p><em class="remark">IMHO, the checkpoint and the stop objects are very similar and
+                should essentialy be one type of object.</em></p>
+
             <p>A checkpoint represents an arrival or a departure point (in time and space) of a connection.</p>
 
             <table class="table table-bordered">
@@ -1083,7 +1212,7 @@
                     </tr>
                     <tr>
                         <td><code>prognosis</code></td>
-                        <td colspan="2">The checkpoint <a href="#prognosis">prognosis</a></td>
+                        <td colspan="2">The checkpoint <a href="#timing">prognosis</a></td>
                     </tr>
                 </tbody>
             </table>
@@ -1114,9 +1243,13 @@
                 </tbody>
             </table>
 
-            <h4 id="prognosis">Prognosis Object</h4>
+            <h4 id="timing">Timing Object</h4>
 
-            <p>A prognosis contains "realtime" informations on the status of a connection checkpoint.</p>
+            <p>A timing object contains timing information (arrival, departure, capacity) of a 
+                <a href="#stop">stop</a>. or <a href="#connection"></a></p>
+
+            <p>The timing object can be used to represent both <strong>plan</strong> and 
+                <strong>realtime</strong> data.
 
             <table class="table table-bordered">
                 <thead>
@@ -1129,75 +1262,104 @@
                 <tbody>
                     <tr>
                         <td><code>platform</code></td>
-                        <td>The estimated arrival/departure platform</td>
+                        <td>The plannned/estimated arrival/departure platform</td>
                         <td>8</td>
                     </tr>
                     <tr>
                         <td><code>departure</code></td>
-                        <td>The departure time prognosis to the checkpoint<br>Date format: <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a></td>
+                        <td>The departure time to the checkpoint<br>Date format: <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a></td>
                         <td>2012-03-31T08:58:00+02:00</td>
                     </tr>
                     <tr>
                         <td><code>arrival</code></td>
-                        <td>The arrival time prognosis to the checkpoint<br>Date format: <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a></td>
+                        <td>The arrival time to the checkpoint<br>Date format: <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a></td>
                         <td>2012-03-31T09:35:00+02:00</td>
                     </tr>
                     <tr>
                         <td><code>capacity1st</code></td>
-                        <td>The estimated occupation load of 1st class coaches</td>
+                        <td>The occupation load of 1st class coaches</td>
                         <td>1</td>
                     </tr>
                     <tr>
                         <td><code>capacity2st</code></td>
-                        <td>The estimated occupation load of 2nd class coaches</td>
+                        <td>The occupation load of 2nd class coaches</td>
                         <td>2</td>
                     </tr>
                 </tbody>
             </table>
         
             <h4 id="stop">Stop Object</h4>
+            <p>The stop object represents a stopping of one one trip on a station at a given point in time.</p>
 
             <table class="table table-bordered">
                 <thead>
                 <tr>
                     <th>Name</th>
                     <th>Description</th>
-                    <th>Example</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
                     <td><code>station</code></td>
-                    <td colspan="2">A <a href="#location">location</a> object showing this line's stop at the requested station.</td>
+                    <td>A <a href="#location">location</a> object showing this line's stop at the requested station.</td>
                 </tr>
                 <tr>
-                    <td><code>name</code></td>
-                    <td>The name of the connection</td>
-                    <td>Bus 2</td>
+                    <td><code>trip</code></td>
+                    <td>A <a href="#trip">trip</a> object denoting the trip (vehicle) that makes the stop.</td>
                 </tr>
                 <tr>
-                    <td><code>category</code></td>
-                    <td>The type of connection this is</td>
-                    <td>Bus</td>
+                    <td><code>plan</code></td>
+                    <td>a <a href="#timing">timing object</a> representing the planned stopping times.</td>
                 </tr>
                 <tr>
-                    <td><code>number</code></td>
-                    <td>The number of the connection's line, e.g. Bus line 2</td>
-                    <td>2</td>
-                </tr>
-                <tr>
-                    <td><code>operator</code></td>
-                    <td>The operator of the connection's line</td>
-                    <td>BBA</td>
-                </tr>
-                <tr>
-                    <td><code>to</code></td>
-                    <td>The final destination of this line</td>
-                    <td>Aarau Rohr, Unterdorf</td>
+                    <td><code>prognosis</code></td>
+                    <td>a <a href="#timing">timing object</a> representing the prognosis over on when this stopping would take place. <strong>Optional.</strong></td>
                 </tr>
                 </tbody>
             </table>
             
+            <h4 id="trip">Trip Object</h4>
+            <p>The trip object represents the a single trip performed by a transportation vehicle over its usual route.</p>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>href</code></td>
+                        <td>An URL (<a href="#self-link">self link</a>) pointing to 
+                            the complete <a href="trip-resource">trip resource</a>.
+                        </td>
+                        <td>/v2/trips/9876543</td>
+                    </tr>
+                    <tr>
+                        <td><code>category</code></td>
+                        <td>The type of the trip. One of <a href="#transportation-categories">these</a>. </td>
+                        <td>bus</td>
+                    </tr>
+                    <tr>
+                        <td><code>number</code></td>
+                        <td>The number of the connection's line, e.g. Bus line 2</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td><code>operator</code></td>
+                        <td>The operator of the connection's line</td>
+                        <td>BBA</td>
+                    </tr>
+                    <tr>
+                        <td><code>direction</code></td>
+                        <td>The final destination of this line</td>
+                        <td>Aarau Rohr, Unterdorf</td>
+                    </tr>
+
+                </tbody>
+            </table>
         <hr/>
 
         <h3 id="enumerations">Enumerations</h3>
