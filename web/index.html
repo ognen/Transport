@@ -70,9 +70,18 @@
                     </ul>
                 </li>
                 <li>
+                    <a href="#enumerations">Enumerations</a>
+                    <ul>
+                        <li><a href=""></a></li>
+                    </ul>
+                </li>
+                <li>
                     <a href="#limit-response">Limit response</a>
                 </li>
             </ul>
+
+            <h3 id="general">General</h3>
+            <hr/>
 
             <h3 id="hyperlinks">Hyperlinks</h3>
 
@@ -83,7 +92,7 @@
             construct the URL <code>/stationboard?id=4556</code> but should follow the embedded 
             stationboard link in the response obtained by querying <em>locations</em> endpoint.</p>
 
-            <h4 id="link-encoding">Encoding links in JSON</h4>
+            <h3 id="link-encoding">Encoding links in JSON</h3>
 
             <p>Any JSON object that contains a property named <code>href</code>
             is considered a <strong>hyperlink</strong>. The value of the <code>href</code>
@@ -97,7 +106,7 @@
 
             <p>The link object can have other properties as well</p>
 
-            <h4>The Relation of the link to its containing object</h4>
+            <h3>The Relation of the link to its containing object</h3>
 
             <p>The meaining of a link is always determined <em>in relation</em> with its containing
             object. The relation between the containing object and the embedded link si given 
@@ -131,7 +140,7 @@
             the city of Zürich can be found</em> because the link object is found under a
             <code>locations</code> property inside a the Zurich locality object.</p>
 
-            <h4>Standard Link properties</h4>
+            <h3>Standard Link properties</h3>
 
             The following property names are <strong>reserved for standard links</strong>.
 
@@ -158,7 +167,7 @@
                 </tbody>
             </table>
 
-            <h4>Self-Links</h4>
+            <h3>Self-Links</h3>
 
             <p>A self-link is an object (also a link) pointing to a resource of the same object, 
             usually in greater details. It is usually used in collection resources (such as 
@@ -187,7 +196,7 @@
             said that <em>it is</em> a self link, because it is an object containin a <code>href</code>
             property) to a resource that represents the full trip.</p>
 
-            <h4 id="responses">Response Structure</h4>
+            <h3 id="responses">Response Structure</h3>
 
             <p>Each response of the API follows the following rules:</p>
 
@@ -240,7 +249,65 @@
             <p>Here, the <code>stationboard</code> is the main response body property. 
                The station board response's header property is called <code>header</code>
                and it tells us that for which station this data is about.</p>
-               
+
+            <h3 id="metadata">Metadata and Extensibility</h3>
+
+            <p>Implementations of this specification should be able to extend the
+            <a href="#objects">specified objects</a> with data that is unique to them,
+            and at the same time they should not confuse client of the API with properties
+            that mean one thing in one implementation and other in other.</p>
+
+            <p>To support this, fhe following rules are followed:</p>
+            <ul>
+                <li>we distinguish between <strong>global identifier</strong> and <strong>namespaced identifiers</strong></li>
+
+                <ul>
+                    <li>a <em>global identifier</em> is a plain name (that doesn't contain the 
+                        <code>/</code> character)</li>
+                    
+                    <li>a <em>namespaced identifier</em> is in the form <code>namespace/localName</code></li>
+                </ul>
+
+                <li>all global identifiers for <a href="#objects">object</a> properties and 
+                    <a href="#enumerations">enumeration values</a> are reserved for the specification,
+                    implementations can add <em>only namespaced</em> properties to the specified objects
+                    also extend the <a href="#enimerations">enumerations</a> olny with <em>namespaced
+                    values</em></li>.
+            </ul>
+
+            <p>For example:</p>        
+
+            <pre>
+{
+    "locations": [
+        {
+            "coordinate": {
+                "type": "WGS84",
+                "x": "8540192",
+                "y": "47378177"
+            },
+            "id": "008503000",
+            "name": "Zuerich",
+            "type": "com.example/terminal",
+            "com.example/platforms": [
+                {
+                    "name": "1",
+                },
+                {
+                    "name": "2",
+                }
+            ]
+            "score": "100"
+        }
+    ]
+}
+            </pre>
+
+            <p>Here, the implementation extended the <em>station object</em> with a custom property
+            <code>com.example/platforms</code>. It also declares the type of the of the location as
+            <code>com.example/terminal</code>, i.e. has extended the location types enumeration 
+            with a new type.</p>
+
             <h3 id="api-resources">API Resources</h3>
 
             <p>The Transport API builds on REST style resources which respond
