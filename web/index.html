@@ -53,7 +53,7 @@
                     <a href="#api-resources">Resources</a>
                     <ul>
                         <li><a href="#root">Root resource</a></li>
-                        <li><a href="#locations">/locations</a></li>
+                        <li><a href="#locations">Locations resource</a></li>
                         <li><a href="#connections">/connections</a></li>
                         <li><a href="#stationboard">/stationboard</a></li>
                     </ul>
@@ -74,7 +74,8 @@
                 <li>
                     <a href="#enumerations">Enumerations</a>
                     <ul>
-                        <li><a href=""></a></li>
+                        <li><a href="#location-types">Location Types</a></li>
+                        <li><a href="#coordinate-systems">Coordinate Systems</a></li>
                     </ul>
                 </li>
                 <li>
@@ -233,18 +234,25 @@
 
 }                
             </pre>
+
+            <p>In this example we can see that the server implements all the resources of the API.</p>
+
             <hr/>
-            <h3 id="locations">/locations</h3>
+            <h3 id="locations">Locations Resource</h3>
 
             <p>Returns the matching locations for the given parameters.</p>
 
             <p>The locations in the response are scored to determine which is the most exact location.</p>
 
-            <p>This method can return a refine response, what means that the request has to be redone.</p>
+            <p>There can be many locations resources: a global one is required (obtained through the <a href="#root">root resource</a>), but implementations may provide finer-grained resources, 
+            e.g. <em>locations resources per locality</em>.</p>
+
+            <p><em class="remark">(note: is this necessary? we could just return 404)</em> This method can return a refine response, what means that the request has to be redone.</p>
 
             <h4>Resource URL</h4>
 
-            <pre>http://transport.opendata.ch/v1/locations</pre>
+            <p><em>Obtained by following a <code>locations</code> <a href="#link">link</a>,
+            from the <a href="#root">root response</a> or a <a href="#location">location object</a>.</em></p>
 
             <h4>Request Parameters</h4>
 
@@ -267,33 +275,35 @@
                     <tr>
                         <td><code>x</code></td>
                         <td>optional</td>
-                        <td>Latitude</td>
+                        <td>the x coordinate (of a spatial query)</td>
                         <td>47.476001</td>
                     </tr>
                     <tr>
                         <td><code>y</code></td>
                         <td>optional</td>
-                        <td>Longitude</td>
+                        <td>the y coordinate of a spatial query</td>
                         <td>8.306130</td>
                     </tr>
                     <tr>
                         <td><code>type</code></td>
                         <td>optional</td>
                         <td>
-                            Specifies the location type, possible types are:
-                            <ul>
-                                <li>all (default): Looks up for all types of locations</li>
-                                <li>station: Looks up for stations (train station, bus station)</li>
-                                <li>poi: Looks up for points of interest (Clock tower, China garden)</li>
-                                <li>address: Looks up for an address (Zurich Bahnhofstrasse 33)</li>
-                            </ul>
+                            Specifies the <a href="#location-types">location type</a>
+                            If omitted, the query will search <em>all known location types</em>
                         </td>
                         <td>address</td>
+                    </tr>
+                    <tr>
+                        <td><code>ct</code></td>
+                        <td>optional</td>
+                        <td>The <a href="#coordinate-systems">coordinate system</a> for 
+                            <code>x</code> and <code>y</code>. Defaults to <code>WGS84</code></td>
+                        <td>CH1903</td>
                     </tr>
                 </tbody>
             </table>
 
-            <h4>Response parameters</h4>
+            <h4>Response Properties</h4>
 
             <table class="table table-bordered">
                 <thead>
@@ -304,7 +314,15 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><code>stations</code></td>
+                        <td><code>about</code></td>
+                        <td>An <em>optional</em> <a href="#location">object</a>, that identifies 
+                        the restricted scope of the quieried response. The global resource will omit it
+                        but the a locations resource for a <em>locality</em> <strong>should</strong> 
+                        return that locality.
+                         </td>
+                    </tr>
+                    <tr>
+                        <td><code>locations</code></td>
                         <td>A list of <a href="#location">locations</a></td>
                     </tr>
                 </tbody>
@@ -318,7 +336,7 @@
 
             <pre>
 {
-    "stations": [
+    "locations": [
         {
             "coordinate": {
                 "type": "WGS84",
@@ -874,12 +892,10 @@
                     <tr>
                         <td><code>type</code></td>
                         <td>
-                            Type of the location, can contain:
-                            <ul>
-                                <li>station: Location is a train station, bus station</li>
-                                <li>poi: Location is a point of interest (Clock tower, China garden)</li>
-                                <li>address: Location is an address</li>
-                                <li>refine: Location is not defined, the user has to relocate</li>
+                            <a href="#location-types">Type of the location</a>, may also can contain
+                            <code>refine</code> which means the location is not defined, the user has 
+                            to relocate.
+                            <em class="remark">(Is this necessary?)</em>
                             </ul>
                         </td>
                     </tr>
@@ -898,6 +914,19 @@
                     <tr>
                         <td><code>distance</code></td>
                         <td>If search has been with coordinates, distance to original point in meters</td>
+                    </tr>
+                    <tr>
+                        <td><code>locations</code></td>
+                        <td>An (optional) <a href="#link">link</a> to a refined 
+                            <a href="#locations">locations resource</a> just for the current location.
+                            Usually present for locations of type <code>locality</code> to point to 
+                            a resource that lists locations just for that locality (i.e. city).</td>
+                    </tr>
+                    <tr>
+                        <td><code>stationboard</code></td>
+                        <td>An (optional) <a href="#link">link</a> to a 
+                            <a href="#stationboard">stationboard resource</a> that represents a stationboard
+                            just for the current location. Applies only to locations of type <code>station</code></td>
                     </tr>
                 </tbody>
             </table>
@@ -1124,6 +1153,72 @@
                 </tbody>
             </table>
             
+        <hr/>
+
+        <h3 id="enumerations">Enumerations</h3>
+
+        <p>Enumerations (constants) used in this specification</p>
+
+        <hr/>
+
+        <h3 id="location-types">Location Types</h3>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>station</code></td>
+                    <td>A station (train station, bus station)</td>
+                </tr>
+
+                <tr>
+                    <td><code>poi</code></td>
+                    <td>A place of interest (clock tower, china garden)</td>
+                </tr>
+
+                <tr>
+                    <td><code>address</code></td>
+                    <td>An address location type</td>
+                </tr>
+
+                <tr>
+                    <td><code>locality</code></td>
+                    <td>A locality, such as a city or a town (Zürich, Murten).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr/>
+
+        <h3 id="coordinate-systems">Coordinate Systems</h3>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>WGS84</code></td>
+                    <td>The <a href="http://en.wikipedia.org/wiki/World_Geodetic_System">WGS84</a>
+                        coordinate system.</td>
+                </tr>
+
+                <tr>
+                    <td><code>CH1093</code></td>
+                    <td>The <a href="http://en.wikipedia.org/wiki/Swiss_coordinate_system">Swiss
+                     coordinate system</a></td>
+                </tr>
+            </tbody>
+        </table>
+
         <h3 id="limit-response">Limit response</h3>
             <p>You can limit the response data with the <code>fields</code> parameter.
             If any <code>fields[]</code> is passed, only the specified fields are in the response.
@@ -1203,6 +1298,7 @@
     // ...
 }
             </pre>
+
         </article>
 
         <footer>
