@@ -45,8 +45,7 @@
                 <li>
                     <a href="#general">General</a>
                     <ul>
-                        <li><a href="#hyperlinks">Hyperlinks</a></li>
-                        <li><a href="#responses">Response Structure</a></li>
+                        <li><a href="#hyperlinks">Hyperlinking and Discovery</a></li>
                         <li><a href="#metadata">Metadata and Extensibility</a></li>
                     </ul>
                 </li>
@@ -61,6 +60,8 @@
                 <li>
                     <a href="#api-objects">Objects</a>
                     <ul>
+                        <li><a href="#response">response</a></li>
+                        <li><a href="#link">link</a></li>
                         <li><a href="#location">location</a></li>
                         <li><a href="#coordinates">coordinates</a></li>
                         <li><a href="#connection">connection</a></li>
@@ -83,7 +84,7 @@
             <h3 id="general">General</h3>
             <hr/>
 
-            <h3 id="hyperlinks">Hyperlinks</h3>
+            <h3 id="hyperlinks">Hyperlinking and Discovery</h3>
 
             <p>The V2 API stipulates that all navigation from responses to new requests
             <strong>should</strong> be done by reading and interpreting the embedded links in the JSON objects.</p>
@@ -92,163 +93,9 @@
             construct the URL <code>/stationboard?id=4556</code> but should follow the embedded 
             stationboard link in the response obtained by querying <em>locations</em> endpoint.</p>
 
-            <h3 id="link-encoding">Encoding links in JSON</h3>
+            <p>The encoding of links is explained in the <a href="#link">link object section</a>.</p>
 
-            <p>Any JSON object that contains a property named <code>href</code>
-            is considered a <strong>hyperlink</strong>. The value of the <code>href</code>
-            property may contain both <em>absolute URIs</em> as well as <em>relative references</em>.
-            These URIs <strong>must be</strong> resolved, as per 
-            <a href="http://tools.ietf.org/html/rfc3986">RFC 3986</a> (a functionality available in 
-            almost every developer toolkit).</p>
 
-            <p>For example, the following object is a link:</p>
-            <pre>{ "href": "./stationboard/123456" }</pre>
-
-            <p>The link object can have other properties as well</p>
-
-            <h3>The Relation of the link to its containing object</h3>
-
-            <p>The meaining of a link is always determined <em>in relation</em> with its containing
-            object. The relation between the containing object and the embedded link si given 
-            <em>by the property name</em> under which the link is contained within the parent.</p>
-
-            <p>For example, in the object:</p>
-
-            <pre>
-{
-    "name": "Zurich HB",
-    "type": "station",
-    "stationboard": { "href": "./stationboard/123456" }
-}
-            </pre>
-
-            <p>We interpret that the (relative) URI <code>./stationboard/123456</code> <em>points
-            to a stationboard for the station Zurich HB</em> (because the link object is found under
-            the property <code>stationboard</code> of the station object named "Zurich HB").</p>
-
-            <p>Similarly</p>
-            <pre>
-{
-    "name": "Zurich",
-    "type": "locality",
-    "locations": { "href": "./locations/zuerich" }
-}
-            </pre>
-
-            <p>Is interpreted as <em>the link <code>./locations/zuerich</code> points to 
-            a <a href="#locations">locations</a> resource where all the locations within 
-            the city of Zürich can be found</em> because the link object is found under a
-            <code>locations</code> property inside a the Zurich locality object.</p>
-
-            <h3>Standard Link properties</h3>
-
-            The following property names are <strong>reserved for standard links</strong>.
-
-            <table class="table table-bordered">
-                <thead>
-                    <th>Property Name</th>
-                    <th>Description</th>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>stationboard</code></td>
-                        <td>Points to a <a href="#stationboard">stationboard</a> resource related to the containing object</td>
-                    </tr>
-                    <tr>
-                        <td><code>locations</code></td>
-                        <td>
-                            <p>Points to a <a href="#locations">locations</a> resource related to the containing object.</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><code>connections</code></td>
-                        <td>Points to a <a href="#connections">connections</a> resource related to the containing object.</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>Self-Links</h3>
-
-            <p>A self-link is an object (also a link) pointing to a resource of the same object, 
-            usually in greater details. It is usually used in collection resources (such as 
-            trip objects in stationboars to point to the full-version of the trips themselves.</p>
-
-            <p>For example:</p>
-            <pre>
-{
-    "stationboard": [
-        {
-            "trip": {
-                "href": "./trips/123456",
-                "line": "2",
-                "category": "bus"
-            },
-            "station": {
-                "id": "8502996",
-                "name": "Aarau, Bahnhof"
-            }
-        }
-    ]
-}
-            </pre>
-
-            <p>In this response, the <code>trip</code> object contains a self link (can also be 
-            said that <em>it is</em> a self link, because it is an object containin a <code>href</code>
-            property) to a resource that represents the full trip.</p>
-
-            <h3 id="responses">Response Structure</h3>
-
-            <p>Each response of the API follows the following rules:</p>
-
-            <ul>
-                <li>The response is always a JSON object (not an array)</li>
-                <li>The response object has a property contain the main response body (mandatory).
-                    Each resource specifies which property is the main response body</li>
-                <li>The response object conains an optiona header property. Each resource 
-                    specifies which property is the header, if any</li>
-                <li>The response object may contain optional metadata</li>
-            </ul>
-
-            <p>Example:</p>
-            <pre>
-{
-    "header": {
-        "id": "8502996",
-        "name": "Aarau, Bahnhof",
-        "type": "station",
-        "score": null,
-        "coordinate":
-        {
-        "type" : "WGS84",
-        "x": "8050864",
-        "y": "47392020"
-    },
-    "stationboard" : [
-        {
-            "station": {
-                "id": "8502996",
-                "name": "Aarau, Bahnhof",
-                "score": null,
-                "coordinate":
-                {
-                    "type" : "WGS84",
-                    "x": "8050864",
-                    "y": "47392020"
-                },
-                "etc": "..."
-            },
-            "arrival": null,
-        },
-        {
-            "satation": "...",
-        }
-    ]
-}
-            </pre>
-
-            <p>Here, the <code>stationboard</code> is the main response body property. 
-               The station board response's header property is called <code>header</code>
-               and it tells us that for which station this data is about.</p>
 
             <h3 id="metadata">Metadata and Extensibility</h3>
 
@@ -273,6 +120,8 @@
                     implementations can add <em>only namespaced</em> properties to the specified objects
                     also extend the <a href="#enimerations">enumerations</a> olny with <em>namespaced
                     values</em></li>.
+
+                <li>Client implementations <strong>must</strong> properties that they know nothing about.</li>
             </ul>
 
             <p>For example:</p>        
@@ -765,6 +614,178 @@
             <h3 id="api-objects">API Objects</h3>
 
             <p>API responses are composites of the following objects:</p>
+
+            <h4 id="response">Response objects</h4>
+
+            <p>Response objects differ from resource to resource but each of them follows the 
+            these rules:</p>
+
+            <ul>
+                <li>The response is always a JSON object (not an array)</li>
+                <li>The response object has a property contain the main response body (mandatory).
+                    Each resource specifies which property is the main response body</li>
+                <li>The response object conains an optiona header property. Each resource 
+                    specifies which property is the header, if any</li>
+                <li>The response object may contain optional metadata</li>
+            </ul>
+
+            <p>Example:</p>
+            <pre>
+{
+    "header": {
+        "id": "8502996",
+        "name": "Aarau, Bahnhof",
+        "type": "station",
+        "score": null,
+        "coordinate":
+        {
+        "type" : "WGS84",
+        "x": "8050864",
+        "y": "47392020"
+    },
+    "stationboard" : [
+        {
+            "station": {
+                "id": "8502996",
+                "name": "Aarau, Bahnhof",
+                "score": null,
+                "coordinate":
+                {
+                    "type" : "WGS84",
+                    "x": "8050864",
+                    "y": "47392020"
+                },
+                "etc": "..."
+            },
+            "arrival": null,
+        },
+        {
+            "satation": "...",
+        }
+    ]
+}
+            </pre>
+
+            <p>Here, the <code>stationboard</code> is the main response body property. 
+               The station board response's header property is called <code>header</code>
+               and it tells us that for which station this data is about.</p>
+
+            <h4 id="link">Link objects</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Property name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>href</code></td>
+                        <td>The value of the <code>href</code>
+                            property may contain both <em>absolute URIs</em> as well as <em>relative references</em>. These URIs <strong>must be</strong> resolved, as per 
+                            <a href="http://tools.ietf.org/html/rfc3986">RFC 3986</a> 
+                            (a functionality available in almost every developer toolkit). </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>Any JSON object that contains a property named <code>href</code>
+            is considered a <strong>hyperlink</strong>.</p>
+
+            <p>For example, the following object is a link:</p>
+            <pre>{ "href": "./stationboard/123456" }</pre>
+
+            <p>The link object can have other properties as well</p>
+
+            <h5>The Relation of the link to its containing object</h5>
+
+            <p>The meaining of a link is always determined <em>in relation</em> with its containing
+            object. The relation between the containing object and the embedded link si given 
+            <em>by the property name</em> under which the link is contained within the parent.</p>
+
+            <p>For example, in the object:</p>
+
+            <pre>
+{
+    "name": "Zurich HB",
+    "type": "station",
+    "stationboard": { "href": "./stationboard/123456" }
+}
+            </pre>
+
+            <p>We interpret that the (relative) URI <code>./stationboard/123456</code> <em>points
+            to a stationboard for the station Zurich HB</em> (because the link object is found under
+            the property <code>stationboard</code> of the station object named "Zurich HB").</p>
+
+            <p>Similarly</p>
+            <pre>
+{
+    "name": "Zurich",
+    "type": "locality",
+    "locations": { "href": "./locations/zuerich" }
+}
+            </pre>
+
+            <p>Is interpreted as <em>the link <code>./locations/zuerich</code> points to 
+            a <a href="#locations">locations</a> resource where all the locations within 
+            the city of Zürich can be found</em> because the link object is found under a
+            <code>locations</code> property inside a the Zurich locality object.</p>
+
+            <h5>Standard Link properties</h5>
+
+            The following property names are <strong>reserved for standard links</strong>.
+
+            <table class="table table-bordered">
+                <thead>
+                    <th>Property Name</th>
+                    <th>Description</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>stationboard</code></td>
+                        <td>Points to a <a href="#stationboard">stationboard</a> resource related to the containing object</td>
+                    </tr>
+                    <tr>
+                        <td><code>locations</code></td>
+                        <td>
+                            <p>Points to a <a href="#locations">locations</a> resource related to the containing object.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>connections</code></td>
+                        <td>Points to a <a href="#connections">connections</a> resource related to the containing object.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h5>Self-Links</h5>
+
+            <p>A self-link is an object (also a link) pointing to a resource of the same object, 
+            usually in greater details. It is usually used in collection resources (such as 
+            trip objects in stationboars to point to the full-version of the trips themselves.</p>
+
+            <p>For example:</p>
+            <pre>
+{
+    "stationboard": [
+        {
+            "trip": {
+                "href": "./trips/123456",
+                "line": "2",
+                "category": "bus"
+            },
+            "station": {
+                "id": "8502996",
+                "name": "Aarau, Bahnhof"
+            }
+        }
+    ]
+}
+            </pre>
+
+            <p>In this response, the <code>trip</code> object contains a self link (can also be 
+            said that <em>it is</em> a self link, because it is an object containin a <code>href</code>
+            property) to a resource that represents the full trip.</p>
 
             <h4 id="location">Location Object</h4>
 
