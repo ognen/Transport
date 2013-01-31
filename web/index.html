@@ -52,10 +52,11 @@
                 <li>
                     <a href="#api-resources">Resources</a>
                     <ul>
-                        <li><a href="#root">Root resource</a></li>
-                        <li><a href="#locations">Locations resource</a></li>
-                        <li><a href="#connections">Connections resource</a></li>
-                        <li><a href="#stationboard">Stationboard resource</a></li>
+                        <li><a href="#root">Root resource</a> <em>(required)</em></li>
+                        <li><a href="#locations">Locations resource</a> <em>(required)</em></li>
+                        <li><a href="#connections">Connections resource</a> <em>(optional)</em></li>
+                        <li><a href="#stationboard">Stationboard resource</a> <em>(optional)</em></li>
+                        <li><a href="#trip-resource">Trip resource</a> <em>(optional)</em></li>
                     </ul>
                 </li>
                 <li>
@@ -173,6 +174,8 @@
             publish just this URL. It's primary concern is to reveal the <em>capabilities of the api
             provider</em>.</p>
 
+            <p>This resource is required for implementation</p>
+
             <h4>Resource URL</h4>
 
             <pre>http://transport.opendata.ch/v2</pre>
@@ -242,6 +245,8 @@
             <h3 id="locations">Locations Resource</h3>
 
             <p>Returns the matching locations for the given parameters.</p>
+
+            <p>This resource is required for implementation.</p>
 
             <p>The locations in the response are scored to determine which is the most exact location.</p>
 
@@ -410,6 +415,8 @@
             <h3 id="connections">Connections resource</h3>
 
             <p>Returns the next connections from a location to another.</p>
+
+            <p>This resource is optional for implementation.</p>
 
             <h4>Resource URL</h4>
 
@@ -593,6 +600,8 @@
             <h3 id="stationboard">Stationboard resource</h3>
 
             <p>Returns departures leaving from a specific location.</p>
+
+            <p>This resource is optional for implementation</p>
 
             <h4>Resource URL</h4>
 
@@ -867,6 +876,131 @@
 }
             </pre>
 
+            <hr/>
+
+            <h3 id="trip-resource">Trip resource</h3>
+
+            <p>Returns a trip, which is a single traversal that a transportation vehicle performs over its 
+                usual route.</p>
+
+            <p>This resource is optional for implemetation.</p>
+
+            <h4>Resource URL</h4>
+            <p><em>Obtained by following a <code>trip</code> <a href="self-link">self-link</a>
+                from a <a href="#stop">stop object</a>.</em></p>
+
+            <h4>Request Parameters</h4>
+            <p><em>None.</em></p>
+
+            <h4>Response Parameters</h4>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>about</code></td>
+                        <td>a <a href="#trip">trip object</a> identifying the trip itself.</td>
+                    </tr>
+                    <tr>
+                        <td><code>stops</code></td>
+                        <td>
+                            <p>a list of <a href="#stop">stops</a> outlining the route of the trip,
+                                the timing as well as real-time information.</p>
+
+                            <p>Note that, because all stops are related to a single trip,
+                                <em>the <code>trip</code> property will be <strong>omitted</strong> 
+                                from the stops</em>. Use the <code>about</code> property.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Example Request</h4>
+
+            <pre>GET http://transport.opendata.ch/v2/trips/987654</pre>
+
+            <h4>Example Response</h4>
+
+            <pre>
+{
+    "about":
+    {
+        "id": "987654",
+        "href": "/v2/trips/987654",
+        "category": "bus",
+        "number": "3",
+        "operator": "VBZ",
+        "direction": "Frick, Bahnhof"
+    },
+    "stops" : [
+    {
+        "station":
+        {
+            "id": "8502996",
+            "type": "station",
+            "stationboard": { "href": "./8502996" },
+            "name": "Aarau, Bahnhof",
+            "coordinates":
+            {
+                "type" : "WGS84",
+                "x": "8050864",
+                "y": "47392020"
+            },
+        },
+        "plan":
+        {
+            "arrival": null,
+            "departure": "2012-03-31T14:39:00+02:00",
+            "platform": "", 
+            "capacity1st": "-1",
+            "capacity2nd": "-1"
+        },
+        "prognosis":
+        {
+            "platform": null,
+            "arrival": null,
+            "departure": "2012-03-31T14:39:44+02:00",
+            "capacity1st": "-1",
+            "capacity2nd": "-1"
+        }
+    },
+    {
+        "station":
+        {
+            "id": "8502996",
+            "stationboard": { "href": "./8502996" },
+            "name": "Aarau, Bahnhof",
+            "coordinates":
+            {
+                "type": "WGS84",
+                "x": "8050864",
+                "y": "47392020"
+            }
+        },
+        "plan":
+        {
+            "arrival": null,
+            "departure": "2012-03-31T14:39:00+02:00",
+            "platform": ""
+        },
+        "prognosis":
+        {
+            "platform": null,
+            "arrival": null,
+            "departure": "2012-03-31T14:39:00+02:00",
+            "capacity1st": "-1",
+            "capacity2nd": "-1"
+        }
+    }
+    // ...
+    ]
+}                
+            </pre>
             <hr/>
 
             <h3 id="api-objects">API Objects</h3>
@@ -1331,6 +1465,10 @@
                 </thead>
                 <tbody>
                     <tr>
+                        <td><code>id</code></td>
+                        <td>The id of the trip.</td>
+                    </tr>
+                    <tr>
                         <td><code>href</code></td>
                         <td>An URL (<a href="#self-link">self link</a>) pointing to 
                             the complete <a href="trip-resource">trip resource</a>.
@@ -1482,6 +1620,9 @@
         </table>
 
         <h3 id="limit-response">Limit response</h3>
+        <p><em class="remark">IMHO, this is unnecessary and maybe difficuilt to implement use
+            as there is no XPath-like standard for JSON.</em></p>
+
             <p>You can limit the response data with the <code>fields</code> parameter.
             If any <code>fields[]</code> is passed, only the specified fields are in the response.
             The API is aware of the hierarchy, if you set a field, everything below is in the response unless a more specific (further down in the hierarchy) field is set.
