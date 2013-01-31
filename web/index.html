@@ -406,13 +406,15 @@
 
             <hr/>
 
-            <h3 id="connections">/connections</h3>
+            <h3 id="connections">Connections resource</h3>
 
             <p>Returns the next connections from a location to another.</p>
 
             <h4>Resource URL</h4>
 
-            <pre>http://transport.opendata.ch/v1/connections</pre>
+            <p><em>Obtained by following a <code>connections</code> <a href="#link">link</a>,
+            from the <a href="#root">root response</a>.</em></p>
+
 
             <h4>Request Parameters</h4>
 
@@ -463,10 +465,10 @@
                         <td>1</td>
                     </tr>
                     <tr>
-                        <td><code>transportations</code></td>
+                        <td><code>categories</code></td>
                         <td>optional</td>
-                        <td class="description">Transportation means; one or more of <code>ice_tgv_rj</code>, <code>ec_ic</code>, <code>ir</code>, <code>re_d</code>, <code>ship</code>, <code>s_sn_r</code>, <code>bus</code>, <code>cableway</code>, <code>arz_ext</code>, <code>tramway_underground</code></td>
-                        <td>transportations[]=ec_ic&amp;transportations[]=bus</td>
+                        <td class="description">Transportation means (categories); one or more of <a href="#transport-categories">these</a>.</td>
+                        <td>categories[]=ec_ic&amp;categories[]=bus</td>
                     </tr>
                     <tr>
                         <td><code>limit</code></td>
@@ -526,9 +528,9 @@
 
             <h4>Example Requests</h4>
 
-            <pre>GET http://transport.opendata.ch/v1/connections?from=Lausanne&amp;to=Genève</pre>
+            <pre>GET http://transport.opendata.ch/v2/connections?from=Lausanne&amp;to=Genève</pre>
             <p>which is the same as</p>
-            <pre>GET http://transport.opendata.ch/v1/connections?from=008501120&amp;to=008501008</pre>
+            <pre>GET http://transport.opendata.ch/v2/connections?from=008501120&amp;to=008501008</pre>
 
             <h4>Example response</h4>
 
@@ -1258,6 +1260,61 @@
                     <td><code>CH1093</code></td>
                     <td>The <a href="http://en.wikipedia.org/wiki/Swiss_coordinate_system">Swiss
                      coordinate system</a></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr/>
+
+        <h3 id="transport-categories">Categories (transportation means)</h3>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>ice_tgv_rj</code></td>
+                    <td>TBD.</td>
+                </tr>
+                <tr>
+                    <td><code>ec_ic</code></td>
+                    <td>TBD.</td>
+                </tr>
+                <tr>
+                    <td><code>ir</code></td>
+                    <td>TBD.</td>
+                </tr>
+                <tr>
+                    <td><code>re_d</code></td>
+                    <td>TBD.</td>
+                </tr>
+                <tr>
+                    <td><code>ship</code></td>
+                    <td>TBD</td>
+                </tr>
+                <tr>
+                    <td><code>s_sn_r</code></td>
+                    <td>TBD.</td>
+                </tr>
+                <tr>
+                    <td><code>bus</code></td>
+                    <td>A bus.</td>
+                </tr>
+                <tr>
+                    <td><code>cableway</code></td>
+                    <td>TBD.</td>
+                </tr>
+                <tr>            
+                    <td><code>arz_ext</code></td>
+                    <td>TBD.</td>
+                </tr>
+                <tr>
+                    <td><code>tramway_underground</code></td>
+                    <td>Tram or underground.</td>
                 </tr>
             </tbody>
         </table>
