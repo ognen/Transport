@@ -52,6 +52,7 @@
                 <li>
                     <a href="#api-resources">Resources</a>
                     <ul>
+                        <li><a href="#root">Root resource</a></li>
                         <li><a href="#locations">/locations</a></li>
                         <li><a href="#connections">/connections</a></li>
                         <li><a href="#stationboard">/stationboard</a></li>
@@ -164,6 +165,75 @@
 
             <hr/>
 
+            <h3 id="root">Root Resource</h3>
+
+            <p>The root resource is used as <em>the only entry point in the API</em>. Implementations 
+            publish just this URL. It's primary concern is to reveal the <em>capabilities of the api
+            provider</em>.</p>
+
+            <h4>Resource URL</h4>
+
+            <pre>http://transport.opendata.ch/v2</pre>
+            <p><em>(for the reference implementation)</em></p>
+
+            <h4>Request Parameters</h4>
+
+            <p><em>None.</em></p>
+
+            <h4>Response Object</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Property Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>version</code></td>
+                        <td>The version of the API that the implementation provides.</td>
+                    </tr>
+
+                    <tr>
+                        <td><code>author</code></td>
+                        <td>Identifies who implements thi API.</td>
+                    </tr>
+
+                    <tr>
+                        <td><code>locations</code></td>
+                        <td>a <a href="#link">link</a> object pointing to the global 
+                            <a href="#locations">resource</a>. <strong>Required.</strong></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>stationboard</code></td>
+                        <td>a <a href="#link">link</a> object pointing to the global 
+                            <a href="#stationboard">stationboard</a> resource. <strong>Optional</strong></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>connections</code></td>
+                        <td>a <a href="#link">link</a> object pointing to the 
+                        <a href="#connections">connections</a> resourcer. <strong>Optional.</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Example Request</h4>
+            <pre>GET http://transport.opendata.ch/v2</pre>
+
+            <h4>Example Response</h4>
+            <pre>
+{
+    "author": "Opendata.ch",
+    "version": "2.0",
+    "locations": { "href": "/v2/locations" },
+    "stationboard": { "href": "/v2/stationboard" },
+    "connections": { "href": "/v2/connections" }
+
+}                
+            </pre>
+            <hr/>
             <h3 id="locations">/locations</h3>
 
             <p>Returns the matching locations for the given parameters.</p>
