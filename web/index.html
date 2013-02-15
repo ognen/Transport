@@ -55,23 +55,24 @@
                         <li><a href="#root">Root resource</a> <em>(required)</em></li>
                         <li><a href="#locations">Locations resource</a> <em>(required)</em></li>
                         <li><a href="#connections">Connections resource</a> <em>(optional)</em></li>
-                        <li><a href="#stationboard">Stationboard resource</a> <em>(optional)</em></li>
-                        <li><a href="#trip-resource">Trip resource</a> <em>(optional)</em></li>
+                        <li><a href="#stationboards">Stationboards resource</a> <em>(optional)</em></li>
+                        <li><a href="#trip-resource">Trips resource</a> <em>(optional)</em></li>
                     </ul>
                 </li>
                 <li>
                     <a href="#api-objects">Objects</a>
-                    <ul>
-                        <li><a href="#response">response</a></li>
-                        <li><a href="#link">link</a></li>
-                        <li><a href="#location">location</a></li>
-                        <li><a href="#coordinates">coordinates</a></li>
-                        <li><a href="#connection">connection</a></li>
-                        <li><a href="#checkpoint">checkpoint</a></li>
-                        <li><a href="#timing">timing</a></li>
-                        <li><a href="#stop">stop</a></li>
-                        <li><a href="#trip">trip</a></li>
-                    </ul>
+		    <ul>
+		        <li><a href="#response">Response</a></li>
+		        <li><a href="#link">Link</a></li>
+		        <li><a href="#location">Location</a></li>
+		        <li><a href="#coordinates">Coordinates</a></li>
+		        <li><a href="#connection">Connection</a></li>
+		        <li><a href="#checkpoint">Checkpoint</a></li>
+		        <li><a href="#service">Service</a></li>
+		        <li><a href="#timing">Timing</a></li>
+		        <li><a href="#stop">Stop</a></li>
+		        <li><a href="#trip">Trip</a></li>
+		    </ul>
                 </li>
                 <li>
                     <a href="#enumerations">Enumerations</a>
@@ -90,12 +91,12 @@
 
             <h3 id="hyperlinks">Hyperlinking and Discovery</h3>
 
-            <p>The V2 API stipulates that all navigation from responses to new requests
+            <p>The version 2 (v2) API stipulates that all navigation from responses to new requests
             <strong>should</strong> be done by reading and interpreting the embedded links in the JSON objects.</p>
 
-            <p>E.g. if one knows the id of a station (e.g. <code>4556</code>), one is not allowed to immediately
-            construct the URL <code>/stationboard?id=4556</code> but should follow the embedded 
-            stationboard link in the response obtained by querying <em>locations</em> endpoint.</p>
+            <p>E.g. if one knows the id of a station (e.g. <code>4556</code>), one is <strong>not allowed</strong> to immediately
+            construct the URL <code>/stationboards?id=4556</code> but should follow the embedded 
+            stationboards link in the response obtained by querying a <em>locations</em> endpoint.</p>
 
             <p>The encoding of links is explained in the <a href="#link">link object section</a>.</p>
 
@@ -103,14 +104,14 @@
 
             <h3 id="metadata">Metadata and Extensibility</h3>
 
-            <p>Implementations of this specification should be able to extend the
+            <p>Implementations of this specification are able to extend the
             <a href="#objects">specified objects</a> with data that is unique to them,
-            and at the same time they should not confuse client of the API with properties
-            that mean one thing in one implementation and other in other.</p>
+            and at the same time they must not confuse client of the API with properties
+            that mean one thing in one and something else in another implementation.</p>
 
-            <p>To support this, fhe following rules are followed:</p>
+            <p>To do so, the following rules are to be followed:</p>
             <ul>
-                <li>we distinguish between <strong>global identifier</strong> and <strong>namespaced identifiers</strong></li>
+                <li>We distinguish between <strong>global identifiers</strong> and <strong>namespaced identifiers</strong>:</li>
 
                 <ul>
                     <li>a <em>global identifier</em> is a plain name (that doesn't contain the 
@@ -119,44 +120,41 @@
                     <li>a <em>namespaced identifier</em> is in the form <code>namespace/localName</code></li>
                 </ul>
 
-                <li>all global identifiers for <a href="#objects">object</a> properties and 
+                <li>All global identifiers for <a href="#objects">object</a> properties and 
                     <a href="#enumerations">enumeration values</a> are reserved for the specification,
-                    implementations can add <em>only namespaced</em> properties to the specified objects
-                    also extend the <a href="#enimerations">enumerations</a> olny with <em>namespaced
-                    values</em></li>.
+                    implementations must add <strong>only</strong> <em>namespaced</em> properties to the specified objects
+                    also extend the <a href="#enimerations">enumerations</a> only with <em>namespaced
+                    values</em>.</li>
 
-                <li>Client implementations <strong>must</strong> properties that they know nothing about.</li>
+                <li>Namespaces should allow for enough diversity and therefore preferably follow the "inverse domain notation" rule, e.g. <em>com.example</em>.</li>
+                <li>Client implementations <strong>should</strong> simply ignore properties they know nothing about.</li>
             </ul>
 
             <p>For example:</p>        
 
             <pre>
 {
-    "locations": [
-        {
-            "coordinate": {
-                "type": "WGS84",
-                "x": "8540192",
-                "y": "47378177"
-            },
-            "id": "008503000",
-            "name": "Zuerich",
-            "type": "com.example/terminal",
-            "com.example/platforms": [
-                {
-                    "name": "1",
-                },
-                {
-                    "name": "2",
-                }
-            ]
+    "locations": [ {
+         "coordinate": {<em class="remark">RB: should that be coordinates rather than coordinate?</em>
+             "type": "WGS84",
+             "x": "8540192",
+             "y": "47378177"
+         },
+         "id": "008503000",
+         "name": "Zuerich",
+         "type": "com.example/terminal",
+         "com.example/platforms": [ {
+             "name": "1",
+         },
+         {
+             "name": "2",
+         } ],
             "score": "100"
-        }
-    ]
+    } ]
 }
-            </pre>
+</pre>
 
-            <p>Here, the implementation extended the <em>station object</em> with a custom property
+            <p>Here, the implementation extends the <em>station object</em> with a custom property
             <code>com.example/platforms</code>. It also declares the type of the of the location as
             <code>com.example/terminal</code>, i.e. has extended the location types enumeration 
             with a new type.</p>
@@ -164,22 +162,21 @@
             <h3 id="api-resources">API Resources</h3>
 
             <p>The Transport API builds on REST style resources which respond
-            <in JSON. Individual resources are detailed below.</p>
+            in JSON. Individual resources are detailed below.</p>
 
             <hr/>
 
             <h3 id="root">Root Resource</h3>
 
-            <p>The root resource is used as <em>the only entry point in the API</em>. Implementations 
-            publish just this URL. It's primary concern is to reveal the <em>capabilities of the api
+            <p>The root resource is used as <strong>the only entry point in the API</strong>. Implementations 
+            publish just this URL. Its primary concern is to reveal the <em>capabilities of the API
             provider</em>.</p>
 
-            <p>This resource is required for implementation</p>
+            <p>This resource must be provided by every implementation.</p>
 
-            <h4>Resource URL</h4>
+            <h4>Resource URL (of the reference implementation)</h4>
 
             <pre>http://transport.opendata.ch/v2</pre>
-            <p><em>(for the reference implementation)</em></p>
 
             <h4>Request Parameters</h4>
 
@@ -201,25 +198,25 @@
 
                     <tr>
                         <td><code>author</code></td>
-                        <td>Identifies who implements thi API.</td>
+                        <td>Identifies who implements this API.</td>
                     </tr>
 
                     <tr>
                         <td><code>locations</code></td>
-                        <td>a <a href="#link">link</a> object pointing to the global 
-                            <a href="#locations">resource</a>. <strong>Required.</strong></td>
+                        <td>A <a href="#link">link</a> object pointing to the global 
+                            <a href="#locations">locations</a> resource. <strong>Required.</strong></td>
                     </tr>
 
                     <tr>
-                        <td><code>stationboard</code></td>
-                        <td>a <a href="#link">link</a> object pointing to the global 
-                            <a href="#stationboard">stationboard</a> resource. <strong>Optional</strong></td>
+                        <td><code>stationboards</code></td>
+                        <td>A <a href="#link">link</a> object pointing to the global 
+                            <a href="#stationboards">stationboards</a> resource. <strong>Optional</strong></td>
                     </tr>
 
                     <tr>
                         <td><code>connections</code></td>
-                        <td>a <a href="#link">link</a> object pointing to the 
-                        <a href="#connections">connections</a> resourcer. <strong>Optional.</strong></td>
+                        <td>A <a href="#link">link</a> object pointing to the 
+                        <a href="#connections">connections</a> resource. <strong>Optional.</strong></td>
                     </tr>
                 </tbody>
             </table>
@@ -232,12 +229,20 @@
 {
     "author": "Opendata.ch",
     "version": "2.0",
-    "locations": { "href": "/v2/locations" },
-    "stationboard": { "href": "/v2/stationboard" },
-    "connections": { "href": "/v2/connections" }
-
-}                
-            </pre>
+    "locations": {
+        "href": "/v2/locations"
+    },
+    "stationboards": {
+        "href": "/v2/stationboards"
+    },
+    "connections": {
+        "href": "/v2/connections"
+    },
+    "trips": {
+        "href": "/v2/trips"
+    }
+}
+</pre>
 
             <p>In this example we can see that the server implements all the resources of the API.</p>
 
@@ -253,12 +258,12 @@
             <p>There can be many locations resources: a global one is required (obtained through the <a href="#root">root resource</a>), but implementations may provide finer-grained resources, 
             e.g. <em>locations resources per locality</em>.</p>
 
-            <p><em class="remark">(note: is this necessary? we could just return 404)</em> This method can return a refine response, what means that the request has to be redone.</p>
+            <p><em class="remark">OI: Is this necessary? we could just return 404<br>RB: 404 is not an option, as we declared it in the root resource. And I think it should also return a valid answer somehow, like preferred entry answers or "refine" (i.e. return a list of networks unless queried with type=stations parameter, which then asks to refine is result would be too large or so...</em> This method can return a refine response, what means that the request has to be redone.</p>
 
             <h4>Resource URL</h4>
 
             <p><em>Obtained by following a <code>locations</code> <a href="#link">link</a>,
-            from the <a href="#root">root response</a> or a <a href="#location">location object</a>.</em></p>
+            from the <a href="#root">root response</a> or any <a href="#location">location response object</a>.</em></p>
 
             <h4>Request Parameters</h4>
 
@@ -275,7 +280,7 @@
                     <tr>
                         <td><code>query</code></td>
                         <td>required</td>
-                        <td>Specifies the location name to search for</td>
+                        <td>Specifies the location name to search for<em class="remark">RB: Don't think this should be required, as we want to return everything e.g. for a locations request in a netwrok, where we want all localities...</em></td>
                         <td>Basel</td>
                     </tr>
                     <tr>
@@ -300,7 +305,7 @@
                         <td>address</td>
                     </tr>
                     <tr>
-                        <td><code>ct</code></td>
+                        <td><code>cs</code></td>
                         <td>optional</td>
                         <td>The <a href="#coordinate-systems">coordinate system</a> for 
                             <code>x</code> and <code>y</code>. Defaults to <code>WGS84</code></td>
@@ -323,8 +328,7 @@
                         <td><code>about</code></td>
                         <td>An <em>optional</em> <a href="#location">object</a>, that identifies 
                         the restricted scope of the quieried response. The global resource will omit it
-                        but the a locations resource for a <em>locality</em> <strong>should</strong> 
-                        return that locality.
+                        but the a locations resource for a specific <em>location</em> (e.g. a locality) <strong>should</strong> return that locality.
                          </td>
                     </tr>
                     <tr>
@@ -336,44 +340,60 @@
 
             <h4>Example Request</h4>
 
-            <pre>GET http://transport.opendata.ch/v2/locations?query=Basel</pre>
+            <pre>GET http://transport.opendata.ch/v2/locations?query=Zürich</pre>
 
             <h4>Example response</h4>
 
             <pre>
 {
-    "locations": [
-        {
-            "coordinate": {
-                "type": "WGS84",
-                "x": "8540192",
-                "y": "47378177"
-            },
-            "id": "008503000",
-            "type": "station",
-            "name": "Zuerich",
-            "score": "100",
-            "stationboard": { "href": "stationboard/008503000" }
+    "locations": [ {
+        "id": "008503000",
+        "type": "station",
+        "name": "Zürich",
+        "coordinate": {
+            "type": "WGS84",
+            "x": "8540192",
+            "y": "47378177"
         },
-        {
-            "coordinate": {
-                "type": "WGS84",
-                "x": "8540192",
-                "y": "47378177"
-            },
-            "id": "008503000",
-            "name": "Zurich",
-            "score": "99"
-            "type": "locality",
-            "locations": { "href": "./008503000" }
+        "stationboards": {
+            "href": "stationboards/008503000"
         }
-    ]
+        "score": "100",
+    },
+    {
+        "id": "zh-city",
+        "type": "locality",
+        "name": "Zürich",
+        "coordinate": {
+            "type": "WGS84",
+            "x": "8540192",
+            "y": "47378177"
+        },
+        "locations": {
+            "href": "./zh-city"
+        },
+        "score": "99"
+    },
+    {
+        "id": "zh-grossmuenster",
+        "type": "poi",
+        "name": "Grossmünster",
+        "coordinate": {
+            "type": "WGS84",
+            "x": "8540192",
+            "y": "47378177"
+        },
+        "locations": {
+            "href": "./zh-grossmuenster"
+        },
+        "score": "70"
+    } ]
 }
-            </pre>
+</pre>
 
             <h4>Example Request (refined)</h4>
 
-            <pre>GET http://transport.opendata.ch/v2/locations/008503000?query=Zypressen</pre>
+            <pre>GET http://transport.opendata.ch/v2/locations/zh-city?query=Zypressen</pre>
 
             <p><em>URL obtained from prevous example, points to a locations resource for the 
                 Zürich locality.</em></p>
@@ -383,32 +403,34 @@
             <pre>
 {
     "about": {
-            "coordinate": {
-                "type": "WGS84",
-                "x": "8540192",
-                "y": "47378177"
-            },
-            "id": "008503000",
-            "name": "Zurich",
-            "type": "locality",
-            "locations": { "href": "./008503000" }
-    },
-    "locations": [
-        {
-            "coordinate": {
-                "type": "WGS84",
-                "x": "8540192",
-                "y": "47378177"
-            },
-            "id": "008503000",
-            "score": "99",
-            "type": "station",
-            "name": "Zypressenstrasse",
-            "stationboard": { "href": "../stationboard/008503000" }
+        "id": "zh-city",
+        "type": "locality",
+        "name": "Zürich",
+        "coordinate": {
+            "type": "WGS84",
+            "x": "8540192",
+            "y": "47378177"
+        },
+        "locations": {
+            "href": "./zh-city"
         }
-    ]
+    },
+    "locations": [ {
+        "id": "008503456",
+        "type": "station",
+        "name": "Zypressenstrasse",
+        "coordinate": {
+            "type": "WGS84",
+            "x": "8540192",
+            "y": "47378177"
+        },
+        "stationboards": {
+            "href": "../stationboards/008503456"
+        },
+        "score": "99"
+    } ]
 }
-            </pre>
+</pre>
 
             <hr/>
 
@@ -475,19 +497,19 @@
                     <tr>
                         <td><code>categories</code></td>
                         <td>optional</td>
-                        <td class="description">Transportation means (categories); one or more of <a href="#transport-categories">these</a>.</td>
+                        <td>Transportation means (categories); one or more of <a href="#transport-categories">these</a>.</td>
                         <td>categories[]=ec_ic&amp;categories[]=bus</td>
                     </tr>
                     <tr>
                         <td><code>limit</code></td>
                         <td>optional</td>
-                        <td>1 - 6. Specifies the number of connections to return. If several connections depart at the same time they are counted as 1.</td>
-                        <td>Bern</td>
+                        <td><em class="remark">RB: default missing. And way only 1 - 6?</em>1 - 6. Specifies the number of connections to return. If several connections depart at the same time they are counted as 1.</td>
+                        <td>6</td>
                     </tr>
                     <tr>
                         <td><code>page</code></td>
                         <td>optional</td>
-                        <td>0 - 10. Allows pagination of connections. Zero-based, so first page is&#160;0, second is&#160;1, third is&#160;2 and so on.</td>
+                        <td><em class="remark">RB: here we have paging. How about the other resources?</em>0 - 10. Allows pagination of connections. Zero-based, so first page is&#160;0, second is&#160;1, third is&#160;2 and so on.</td>
                         <td>3</td>
                     </tr>
                     <tr>
@@ -544,68 +566,70 @@
 
             <pre>
 {
-    "connections" : [
-        {
-            "from" : {
-                "arrival" : null,
-                "departure" : "2012-03-31T08:58:00+02:00",
-                "platform" : "7",
-                "prognosis" : {
-                    "platform" : null,
-                    "arrival" : null
-                    "departure" : null
-                    "capacity1st" : "-1",
-                    "capacity2nd" : "-1",
-                },
-                "station" : {
-                    "coordinate" : {
-                        "type" : "WGS84",
-                        "x" : "6629086",
-                        "y" : "46516785"
-                    },
-                    "id" : "008501120",
-                    "name" : "Lausanne",
-                    "score" : null
-                }
+    "connections": [ {
+        "from": {
+            "arrival": null,
+            "departure": "2012-03-31T08:58:00+02:00",
+            "platform": "7",
+            "prognosis": {<em class="remark">RB: prognosis object not specified yet, specifically value range for capacity1st and capacity2nd. Maybe these two should be dropped anyway and made extensions: ch.sbb/capacity1st ...</em>
+                "platform": null,
+                "arrival": null,
+                "departure": null,
+                "delay": null,
+                "capacity1st": "-1",
+                "capacity2nd": "-1",
             },
-            "to" : {
-                "arrival" : "2012-03-31T09:46:00+02:00",
-                "departure" : null,
-                "platform" : "2",
-                "prognosis" : {
-                    "platform" : null,
-                    "arrival" : null,
-                    "departure" : null
-                    "capacity1st" : null,
-                    "capacity2nd" : null,
+            "station": {
+                "coordinate": {
+                    "type": "WGS84",
+                    "x": "6629086",
+                    "y": "46516785"
                 },
-                "station" : {
-                    "coordinate" : {
-                        "type" : "WGS84",
-                        "x" : "6142437",
-                        "y" : "46210217"
-                    },
-                    "id" : "008501008",
-                    "name" : "Genève",
-                    "score" : null
-                }
+                "id": "008501120",
+                "name": "Lausanne",
+                "score": null
             }
         },
-    ],
-    // ...
+        "to": {
+            "arrival": "2012-03-31T09:46:00+02:00",
+            "departure": null,
+            "platform": "2",
+            "prognosis": {
+                "platform": null,
+                "arrival": null,
+                "departure": null,
+                "delay": null,
+                "capacity1st": null,
+                "capacity2nd": null
+            },
+            "station": {
+                "coordinate": {
+                    "type": "WGS84",
+                    "x": "6142437",
+                    "y": "46210217"
+                },
+                "id": "008501008",
+                "name": "Gen\u00e8ve",
+                "score": null
+            }
+        }
+    },
+    {    
+        // other connections...
+    } ]
 }
-            </pre>
+</pre>
             <hr/>
 
-            <h3 id="stationboard">Stationboard resource</h3>
+            <h3 id="stationboards">Stationboards resource</h3>
 
             <p>Returns departures leaving from a specific location.</p>
 
-            <p>This resource is optional for implementation</p>
+            <p>This resource is optional for implementation.<em class="remark">RB: about the "stationboards" v.s "stationboard": If an idea is a kind of meta station (i.e. a station that has a locations link that would return a set of stations), then we'd return a list of stationsborads, correct? So we need a station.id to access a (or multiple) stationborad(s)</em></p>
 
             <h4>Resource URL</h4>
 
-            <p><em>Obtained by following a <code>stationboard</code> <a href="#link">link</a>,
+            <p><em>Obtained by following a <code>stationboards</code> <a href="#link">link</a>,
             from the <a href="#root">root response</a> or a <a href="#location">location object</a>.</em></p>
 
 
@@ -625,24 +649,24 @@
                     <td><code>station</code></td>
                     <td>optional</td>
                     <td>
-                        <em class="remark">(I think this is unnecessary, as station lookup should
-                         go through the locations resources)</em> 
-                         <p>Specifies the location of which a stationboard should be returned.</p>
+                        <em class="remark">OI: I think this is unnecessary, as station lookup should
+                         go through the locations resources<br>RB: Agree: should be id only. drop search.</em> 
+                         <p>Specifies the location of which stationboards should be returned.</p>
                          <p>Either a <code>station</code> or an <code>id</code> should be provided,
-                            unless the stationboard URL was obtained through a link inside a 
-                            <a href="#location">location object</a>, in which case the stationboard is 
+                            unless the stationboards URL was obtained through a link inside a 
+                            <a href="#location">location object</a>, in which case the stationboards are 
                             <strong>just for that location</strong></p>
                     </td>
                     <td>Aarau</td>
                 </tr>
                 <tr>
                     <td><code>id</code></td>
-                    <td>optional</td>
+                    <td>optional<em class="remark">RB: required or given by following a link. But I think that measn required rather than optional ;-)<em></td>
                     <td><p>The id of the station whose stationboard should be returned.</p>
                         <p>Alternative to the station parameter; one of these two is should be provided..</p>
                         <p>Either a <code>station</code> or an <code>id</code> should be provided,
-                            unless the stationboard URL was obtained through a link inside a 
-                            <a href="#location">location object</a>, in which case the stationboard is 
+                            unless the stationboards URL was obtained through a link inside a 
+                            <a href="#location">location object</a>, in which case the stationboards is 
                             <strong>just for that location</strong> and the id is unnecessary.</p>
                     </td>
                     <td>8503059 <em>(for Zurich Stadelhofen)</em></td>
@@ -662,13 +686,13 @@
                 <tr>
                     <td><code>from</code></td>
                     <td>optional</td>
-                    <td>A RFC3339 timestamp, determining from which point in time we are interested in looking at connections.</td>
+                    <td>A RFC3339 timestamp, determining from which point in time we are interested in receiving connections.</td>
                     <td>2012-03-31T08:58:00+02:00</td>
                 </tr>
                 <tr>
                     <td><code>to</code></td>
                     <td>optional</td>
-                    <td>A RFC3339 timestamp, determining until which point in time we are interested in lookin at connections.</td>
+                    <td>A RFC3339 timestamp, determining up to (and including) which point in time we are interested in receiving connections.</td>
                     <td>2012-03-31T08:58:00+02:00</td>
                 </tr>
                 <tr>
@@ -680,13 +704,13 @@
                 <tr>
                     <td><code>lines</code></td>
                     <td>optional</td>
-                    <td>Which lines should the quiery return. <em>Default: all</em></td>
+                    <td>Which lines should the query return. <em>Default: all</em></td>
                     <td>?lines[]=2&amp;lines[]=3</td>
                 </tr>
                 </tbody>
             </table>
 
-            <h4>Interpreting the <code>limit</code>, <code>from</code>, to <code>parameters</code></h4>
+            <h4>Interpreting the <code>limit</code>, <code>from</code>, and <code>to</code> parameters</h4>
 
             <table class="table table-bordered">
                 <thead>
@@ -702,52 +726,62 @@
                         <td>n/a</td>
                         <td>n/a</td>
                         <td>n/a</td>
-                        <td>Return the default number of stops matching the filtering criteria, starting from now.
+                        <td>Return the default number of stops (matching the filtering criteria), starting from now.
 </td>
                     </tr>
                     <tr>
-                        <td>provided</td>
                         <td>n/a</td>
                         <td>n/a</td>
-                        <td>Return the default number of stops matching the filtering criteria, starting from the provided time.</td>
-                    </tr>
-                    <tr>
                         <td>provided</td>
-                        <td>n/a</td>
-                        <td>provided</td>
-                        <td>Return the specified no. of connections matching the filtering criteria, starting from now.</td>
-                    </tr>
-                    <tr>
-                        <td>provided</td>
-                        <td>provided</td>
-                        <td>provided</td>
-                        <td>Return up to the specified no. of connection matching the filtering criteria, starting from given time and no latter to the given end time.</td>
+                        <td>Return the provided number of stops, starting from now. (The implementation may have an internal maximum limit that will not be exceed.)
+</td>
                     </tr>
                     <tr>
                         <td>n/a</td>
                         <td>provided</td>
                         <td>n/a</td>
-                        <td>Return up to the default number of stops from now to (at most) the provided <em>to</em> value.</td>
+                        <td>Return up to the default number of stops from now to (at most) the given <em>to</em> time.</td>
+                    </tr>
+                    <tr>
+                        <td>n/a</td>
+                        <td>provided</td>
+                        <td>provided</td>
+                        <td>Return up to the given number of stops from now to (at most) the given <em>to</em> time.</td>
+                    </tr>
+                    <tr>
+                        <td>provided</td>
+                        <td>n/a</td>
+                        <td>n/a</td>
+                        <td>Return the default number of stops, starting from the given <em>from</em> time.</td>
+                    </tr>
+                    <tr>
+                        <td>provided</td>
+                        <td>n/a</td>
+                        <td>provided</td>
+                        <td>Return the provided number of connections, starting from the given <em>from</em> time.</td>
                     </tr>
                     <tr>
                         <td>provided</td>
                         <td>provided</td>
                         <td>n/a</td>
-                        <td>Return up to the default number of stops from <em>from</em>  to (at most) <em>to</em>.</td>
-
+                        <td>Return up to the default number of connections from the given <em>from</em> to (at most) the given <em>to</em> time.</td>
+                    </tr>
+                    <tr>
+                        <td>provided</td>
+                        <td>provided</td>
+                        <td>provided</td>
+                        <td>Return up to the provided number of connections, starting from the given <em>from</em> time up to the given <em>to</em> time.</td>
                     </tr>
                 </tbody>
             </table>
 
-            <p><em>(one should be able to deduce the rest of the possible cases based on these)</em></p>
-
             <h4>Interpreting the filtering parameters: <code>categories</code> and <code>lines</code></h4>
 
-            <p>When more than one filtering parameter of any kind is present, the matching criteria would means a a connection that matches any of the provided parameters. I.e. </p>
+            <p>When more than one filtering parameter of any kind is present, a connection matching any of the provided parameters will be returned. E.g. </p>
 
             <pre>categories[]=ship&amp;lines[]=2&amp;lines[]=3</pre>
 
-            <p>should be interpreted as all connections of the lines 2 and 3 and also ships should be returned.</p>
+            <p>should be interpreted as: return all connections of lines 2 and 3 and also ships.</p>
 
             <h4>Response parameters</h4>
 
@@ -761,10 +795,10 @@
                 <tbody>
                     <tr>
                         <td><code>about</code></td>
-                        <td>a <a href="#location">location object</a> identifying to what the response relates to.</td>
+                        <td>a <a href="#location">location object</a> identifying to what the response relates to.<em class="remark">RB: about the about: isn't it a station here? If we stick to "needs a station id" (even if it's a "meta station"), we should return a "station" object rather than an "about" object. I think this should hold for all other abouts as well...</em></td>
                     </tr>
                     <tr>
-                        <td><code>stationboard</code></td>
+                        <td><code>stationboards</code></td>
                         <td>A list of <a href="#stop">stops</a>, showing the requested departures.</td>
                     </tr>
                 </tbody>
@@ -772,62 +806,58 @@
 
             <h4>Example Requests</h4>
 
-            <pre>GET http://transport.opendata.ch/v2/stationboard?station=Aarau&amp;limit=10</pre>
+            <pre>GET http://transport.opendata.ch/v2/stationboards?station=Aarau&amp;limit=10</pre>
             <p>which is the same as</p>
-            <pre>GET http://transport.opendata.ch/v2/stationboard?id=8502996&amp;limit=10</pre>
+            <pre>GET http://transport.opendata.ch/v2/stationboards?id=8502996&amp;limit=10</pre>
             <p>which is also</p>
-            <pre>GET http://transport.opendata.ch/v2/stationboard/8502996?limit=10</pre>
+            <pre>GET http://transport.opendata.ch/v2/stationboards/8502996?limit=10</pre>
 
             <h4>Example response</h4>
 
-            <pre>
+            <pre><em class="remark">RB: the order: how would we return multiple stationboards? here we always return a single stationboard (being an array of departures). If it was per station, (not mixing), then we'd return an array of stations, each having a stationboard containing an array of departures... Maybe we should revise my previous assumption that a stationboard actually returns multiplr boards, but always only a single board (which can be a borad of multiple stations), which again is what the current example shows...</em>
 {
-    "about":
-    {
+    "about": {
         "id": "8502996",
         "type": "station",
-        "stationboard": { "href": "./8502996" },
+        "stationboards": {
+            "href": "./8502996"
+        },
         "name": "Aarau, Bahnhof",
-        "coordinates":
-        {
+        "coordinates": {
             "type" : "WGS84",
             "x": "8050864",
             "y": "47392020"
         },
     },
-    "stationboard" : [
-    {
-        "station":
-        {
+    "stationboards": [ {
+        "station": {
             "id": "8502996",
             "type": "station",
-            "stationboard": { "href": "./8502996" },
+            "stationboards": {
+                "href": "./8502996"
+            },
             "name": "Aarau, Bahnhof",
-            "coordinates":
-            {
+            "coordinates": {
                 "type" : "WGS84",
                 "x": "8050864",
                 "y": "47392020"
             },
         },
-        "trip":
-        {
+        "trip": {
             "href": "/v2/trips/1234567",
             "category": "bus",
             "number": "3",
             "operator": "VBZ",
             "direction": "Frick, Bahnhof"
         },
-        "plan":
-        {
+        "plan": {
             "arrival": null,
             "departure": "2012-03-31T14:39:00+02:00",
             "platform": "", 
             "capacity1st": "-1",
             "capacity2nd": "-1"
         },
-        "prognosis":
-        {
+        "prognosis": {
             "platform": null,
             "arrival": null,
             "departure": "2012-03-31T14:39:44+02:00",
@@ -836,34 +866,31 @@
         }
     },
     {
-        "station":
-        {
+        "station": {
             "id": "8502996",
-            "stationboard": { "href": "./8502996" },
+            "stationboards": {
+                "href": "./8502996"
+            },
             "name": "Aarau, Bahnhof",
-            "coordinates":
-            {
+            "coordinates": {
                 "type": "WGS84",
                 "x": "8050864",
                 "y": "47392020"
             }
         },
-        "trip": 
-        {
+        "trip": {
             "href": "/v2/trips/123459",
             "category": "bus",
             "number": "2",
             "operator": "BBA",
             "direction": "Aarau Rohr, Unterdorf"
         },
-        "plan":
-        {
+        "plan": {
             "arrival": null,
             "departure": "2012-03-31T14:39:00+02:00",
             "platform": ""
         },
-        "prognosis":
-        {
+        "prognosis": {
             "platform": null,
             "arrival": null,
             "departure": "2012-03-31T14:39:00+02:00",
@@ -871,17 +898,17 @@
             "capacity2nd": "-1"
         }
     }
-    // ...
-    ]
+    {    
+        // other departures...
+    } ]
 }
             </pre>
 
             <hr/>
 
-            <h3 id="trip-resource">Trip resource</h3>
+            <h3 id="trip-resource">Trips resource</h3>
 
-            <p>Returns a trip, which is a single traversal that a transportation vehicle performs over its 
-                usual route.</p>
+            <p>Returns trips, which are a single traversal that a transportation vehicle performs over its route.<em class="remark">RB: do we return trips or always a single trip? Likely a single trip only. (There's not even any parameter -> must be a single trip.BTW: shouldn't the id by a required param (either explicit or implicit by following the link)? As with stationboard... just be consistent.</em></p>
 
             <p>This resource is optional for implemetation.</p>
 
@@ -904,7 +931,7 @@
                 <tbody>
                     <tr>
                         <td><code>about</code></td>
-                        <td>a <a href="#trip">trip object</a> identifying the trip itself.</td>
+                        <td><em class="remark">trip rather than about object? (see above)</em>a <a href="#trip">trip object</a> identifying the trip itself.</td>
                     </tr>
                     <tr>
                         <td><code>stops</code></td>
@@ -928,8 +955,7 @@
 
             <pre>
 {
-    "about":
-    {
+    "about": {
         "id": "987654",
         "href": "/v2/trips/987654",
         "category": "bus",
@@ -937,31 +963,28 @@
         "operator": "VBZ",
         "direction": "Frick, Bahnhof"
     },
-    "stops" : [
-    {
-        "station":
-        {
+    "stops" : [ {
+        "station": {
             "id": "8502996",
             "type": "station",
-            "stationboard": { "href": "./8502996" },
+            "stationboards": {
+                "href": "./8502996"
+            },
             "name": "Aarau, Bahnhof",
-            "coordinates":
-            {
+            "coordinates": {
                 "type" : "WGS84",
                 "x": "8050864",
                 "y": "47392020"
             },
         },
-        "plan":
-        {
+        "plan": {
             "arrival": null,
             "departure": "2012-03-31T14:39:00+02:00",
             "platform": "", 
             "capacity1st": "-1",
             "capacity2nd": "-1"
         },
-        "prognosis":
-        {
+        "prognosis": {
             "platform": null,
             "arrival": null,
             "departure": "2012-03-31T14:39:44+02:00",
@@ -970,53 +993,65 @@
         }
     },
     {
-        "station":
-        {
+        "station": {
             "id": "8502996",
-            "stationboard": { "href": "./8502996" },
+            "stationboards": {
+                "href": "./8502996"
+            },
             "name": "Aarau, Bahnhof",
-            "coordinates":
-            {
+            "coordinates": {
                 "type": "WGS84",
                 "x": "8050864",
                 "y": "47392020"
             }
         },
-        "plan":
-        {
+        "plan": {
             "arrival": null,
             "departure": "2012-03-31T14:39:00+02:00",
             "platform": ""
         },
-        "prognosis":
-        {
+        "prognosis": {
             "platform": null,
             "arrival": null,
             "departure": "2012-03-31T14:39:00+02:00",
             "capacity1st": "-1",
             "capacity2nd": "-1"
         }
-    }
-    // ...
-    ]
+    },
+    {
+        // other stops...
+    } ]
 }                
-            </pre>
+</pre>
             <hr/>
 
             <h3 id="api-objects">API Objects</h3>
 
-            <p>API responses are composites of the following objects:</p>
+            <p>API responses are composites of the following objects:<em class="remark">RB: list not consistent with above resources specs yet: can't we only have object(name)s that are also used as that in the response (1:1) e.g. a plan ojbject and a prognosis object (only diff: "delay")</em></p>
 
-            <h4 id="response">Response objects</h4>
+	    <ul>
+	      <li><a href="#response">Response</a></li>
+	      <li><a href="#link">Link</a></li>
+	      <li><a href="#location">Location</a></li>
+	      <li><a href="#coordinates">Coordinates</a></li>
+	      <li><a href="#connection">Connection</a></li>
+	      <li><a href="#checkpoint">Checkpoint</a></li>
+	      <li><a href="#service">Service</a></li>
+	      <li><a href="#timing">Timing</a></li>
+	      <li><a href="#stop">Stop</a></li>
+	      <li><a href="#trip">Trip</a></li>
+	    </ul>
+
+            <h4 id="response">Response object</h4>
 
             <p>Response objects differ from resource to resource but each of them follows the 
             these rules:</p>
 
             <ul>
                 <li>The response is always a JSON object (not an array)</li>
-                <li>The response object has a property contain the main response body (mandatory).
+                <li>The response object has a property containing the main response body (mandatory).
                     Each resource specifies which property is the main response body</li>
-                <li>The response object conains an optiona header property. Each resource 
+                <li>The response object conains an optional header<em class="remark">RB: about? header? or specific?</em> property. Each resource 
                     specifies which property is the header, if any. Usually this property is called
                     <code>about</code></li>
                 <li>The response object may contain optional <a href="#metadata">metadata</a></li>
@@ -1025,43 +1060,40 @@
             <p>Example:</p>
             <pre>
 {
-    "header": {
+    "about": {
         "id": "8502996",
         "name": "Aarau, Bahnhof",
         "type": "station",
         "score": null,
-        "coordinate":
-        {
-        "type" : "WGS84",
-        "x": "8050864",
-        "y": "47392020"
-    },
-    "stationboard" : [
-        {
-            "station": {
-                "id": "8502996",
-                "name": "Aarau, Bahnhof",
-                "score": null,
-                "coordinate":
-                {
-                    "type" : "WGS84",
-                    "x": "8050864",
-                    "y": "47392020"
-                },
-                "etc": "..."
-            },
-            "arrival": null,
+        "coordinate": {
+            "type": "WGS84",
+            "x": "8050864",
+            "y": "47392020"
         },
-        {
-            "satation": "...",
-        }
-    ]
+    },
+    "stationboards": [ {<em class="remark">invalid response... (makes no sense)</em>
+        "station": {
+            "id": "8502996",
+            "name": "Aarau, Bahnhof",
+            "score": null,
+            "coordinate": {
+                "type" : "WGS84",
+                "x": "8050864",
+                "y": "47392020"
+            },
+            "com.example/etc": "..."
+        },
+        "arrival": null,
+    },
+    {
+        // other stations...
+    } ]
 }
-            </pre>
+</pre>
 
-            <p>Here, the <code>stationboard</code> is the main response body property. 
-               The station board response's header property is called <code>header</code>
-               and it tells us that for which station this data is about.</p>
+            <p>Here, <code>stationboards</code> is the main response body property. 
+               The stationboards response's header property is called <code>about</code>
+               and it tells us that for which station this data is.</p>
 
             <h4 id="link">Link object</h4>
             <table class="table table-bordered">
@@ -1086,14 +1118,16 @@
             is considered a <strong>hyperlink</strong>.</p>
 
             <p>For example, the following object is a link:</p>
-            <pre>{ "href": "./stationboard/123456" }</pre>
+            <pre>{
+    "href": "./stationboards/123456"
+}</pre>
 
-            <p>The link object can have other properties as well</p>
+            <p>The link object can have other properties as well.<em class="remark">Actually: the link is more like a property not really an object. And it can't have other properties. The surrounding object an, but that's clear anyway... More specifically, the actual link objects are "stationboard(s)", "locations", "connections", and "trips"</em></p>
 
             <h5>The Relation of the link to its containing object</h5>
 
             <p>The meaining of a link is always determined <em>in relation</em> with its containing
-            object. The relation between the containing object and the embedded link si given 
+            object. The relation between the containing object and the embedded link is given 
             <em>by the property name</em> under which the link is contained within the parent.</p>
 
             <p>For example, in the object:</p>
@@ -1102,26 +1136,30 @@
 {
     "name": "Zurich HB",
     "type": "station",
-    "stationboard": { "href": "./stationboard/123456" }
+    "stationboards": {
+        "href": "./stationboards/123456"
+    }
 }
-            </pre>
+</pre>
 
-            <p>We interpret that the (relative) URI <code>./stationboard/123456</code> <em>points
-            to a stationboard for the station Zurich HB</em> (because the link object is found under
-            the property <code>stationboard</code> of the station object named "Zurich HB").</p>
+            <p>We interpret that: <em>the (relative) URI <code>./stationboards/123456</code> points
+            to a <a href="#stationboards">stationboards</a> resource for the station Zurich HB</em>, because the link object is found under
+            the property <code>stationboards</code> of the station object named "Zurich HB".</p>
 
             <p>Similarly</p>
             <pre>
 {
     "name": "Zurich",
     "type": "locality",
-    "locations": { "href": "./locations/zuerich" }
+    "locations": {
+        "href": "./locations/zuerich"
+    }
 }
-            </pre>
+</pre>
 
-            <p>Is interpreted as <em>the link <code>./locations/zuerich</code> points to 
+            <p>is interpreted as: <em>the link <code>./locations/zuerich</code> points to 
             a <a href="#locations">locations</a> resource where all the locations within 
-            the city of Zürich can be found</em> because the link object is found under a
+            the city of Zürich can be found</em>, because the link object is found under a
             <code>locations</code> property inside a the Zurich locality object.</p>
 
             <h5>Standard Link properties</h5>
@@ -1135,8 +1173,8 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><code>stationboard</code></td>
-                        <td>Points to a <a href="#stationboard">stationboard</a> resource related to the containing object</td>
+                        <td><code>stationboards</code></td>
+                        <td>Points to a <a href="#stationboard">stationboards</a> resource related to the containing object</td>
                     </tr>
                     <tr>
                         <td><code>locations</code></td>
@@ -1148,6 +1186,10 @@
                         <td><code>connections</code></td>
                         <td>Points to a <a href="#connections">connections</a> resource related to the containing object.</td>
                     </tr>
+                    <tr>
+                        <td><code>trip</code></td>
+                        <td>Points to a <a href="#trip">trip</a> resource related to the containing object.</td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -1155,26 +1197,24 @@
 
             <p>A self-link is an object (also a link) pointing to a resource of the same object, 
             usually in greater details. It is usually used in collection resources (such as 
-            trip objects in stationboars to point to the full-version of the trips themselves.</p>
+            trip objects in stationboadrs to point to the full-version of the trips themselves.</p>
 
             <p>For example:</p>
             <pre>
 {
-    "stationboard": [
-        {
-            "trip": {
-                "href": "./trips/123456",
-                "line": "2",
-                "category": "bus"
-            },
-            "station": {
-                "id": "8502996",
-                "name": "Aarau, Bahnhof"
-            }
+    "stationboards": [ {
+        "trip": {
+            "href": "./trips/123456",
+            "line": "2",
+            "category": "bus"
+        },
+        "station": {
+            "id": "8502996",
+            "name": "Aarau, Bahnhof"
         }
-    ]
+    } ]
 }
-            </pre>
+</pre>
 
             <p>In this response, the <code>trip</code> object contains a self link (can also be 
             said that <em>it is</em> a self link, because it is an object containin a <code>href</code>
@@ -1200,7 +1240,7 @@
                             <a href="#location-types">Type of the location</a>, may also can contain
                             <code>refine</code> which means the location is not defined, the user has 
                             to relocate.
-                            <em class="remark">(Is this necessary?)</em>
+                            <em class="remark">OI: Is this necessary?<br>RB: maybe not in the type, but rather a general response to avoid returning too much data... (if on top level only networks are returned, we don't need it on that level, but if the request asks for stations, we might want to require a query that reduces the result set...)</em>
                             </ul>
                         </td>
                     </tr>
@@ -1210,15 +1250,15 @@
                     </tr>
                     <tr>
                         <td><code>score</code></td>
-                        <td>The accuracy of the result</td>
+                        <td>The (optional) accuracy of the result</td>
                     </tr>
                     <tr>
                         <td><code>coordinates</code></td>
-                        <td>The location <a href="#coordinates">coordinates</a></td>
+                        <td>The location <a href="#coordinates">coordinates<em class="remark">RB: See here it's correct: plural ;-)</em></a></td>
                     </tr>
                     <tr>
                         <td><code>distance</code></td>
-                        <td>If search has been with coordinates, distance to original point in meters</td>
+                        <td>If search has been with coordinates, distance to original point in meters (optional)</td>
                     </tr>
                     <tr>
                         <td><code>locations</code></td>
@@ -1228,9 +1268,9 @@
                             a resource that lists locations just for that locality (i.e. city).</td>
                     </tr>
                     <tr>
-                        <td><code>stationboard</code></td>
+                        <td><code>stationboards</code></td>
                         <td>An (optional) <a href="#link">link</a> to a 
-                            <a href="#stationboard">stationboard resource</a> that represents a stationboard
+                            <a href="#stationboards">stationboards resource</a> that represents stationboards
                             just for the current location. Applies only to locations of type <code>station</code></td>
                     </tr>
                 </tbody>
@@ -1248,7 +1288,7 @@
                 <tbody>
                     <tr>
                         <td><code>type</code></td>
-                        <td>The type of the given coordinate</td>
+                        <td>The type of the given coordinate<em class="remark">RB: unfortunately different from the 'cs' request parameter for locations. If we named both "system" we could make them match, but break v1 again...</em></td>
                     </tr>
                     <tr>
                         <td><code>x</code></td>
@@ -1293,17 +1333,17 @@
                     </tr>
                     <tr>
                         <td><code>products</code></td>
-                        <td>Array with transport products</td>
+                        <td>Array with transport products<em class="remark">RB: lines?</em></td>
                         <td>IR, S9</td>
                     </tr>
                     <tr>
                         <td><code>capacity1st</code></td>
-                        <td>The maximum estimated occupation load of 1st class coaches</td>
+                        <td>The (optional) maximum estimated occupation load of 1st class coaches<em class="remark">RB: this is (somewhat) redundant w/ the from and to stop objects that also provide these. Again: Can't we (just) make em sbb extensions and throw the out altogether?</em></td>
                         <td>1</td>
                     </tr>
                     <tr>
                         <td><code>capacity2st</code></td>
-                        <td>The maximum estimated occupation load of 2nd class coaches</td>
+                        <td>The (optional) maximum estimated occupation load of 2nd class coaches</td>
                         <td>2</td>
                     </tr>
                 </tbody>
@@ -1311,8 +1351,8 @@
 
             <h4 id="checkpoint">Checkpoint Object</h4>
 
-            <p><em class="remark">IMHO, the checkpoint and the stop objects are very similar and
-                should essentialy be one type of object.</em></p>
+            <p><em class="remark">OI: the checkpoint and the stop objects are very similar and
+                should essentialy be one type of object.<br>RB: agree: there should only ba a stop object-</em></p>
 
             <p>A checkpoint represents an arrival or a departure point (in time and space) of a connection.</p>
 
@@ -1467,6 +1507,7 @@
                     <tr>
                         <td><code>id</code></td>
                         <td>The id of the trip.</td>
+			<td>9876543</td>
                     </tr>
                     <tr>
                         <td><code>href</code></td>
@@ -1482,7 +1523,7 @@
                     </tr>
                     <tr>
                         <td><code>number</code></td>
-                        <td>The number of the connection's line, e.g. Bus line 2</td>
+                        <td>The number of the connection's line, e.g. Bus line 2<em class="remark">RB: line instead of number?</em></td>
                         <td>2</td>
                     </tr>
                     <tr>
@@ -1520,20 +1561,21 @@
                     <td><code>station</code></td>
                     <td>A station (train station, bus station)</td>
                 </tr>
-
                 <tr>
                     <td><code>poi</code></td>
                     <td>A place of interest (clock tower, china garden)</td>
                 </tr>
-
                 <tr>
                     <td><code>address</code></td>
                     <td>An address location type</td>
                 </tr>
-
                 <tr>
                     <td><code>locality</code></td>
                     <td>A locality, such as a city or a town (Zürich, Murten).</td>
+                </tr>
+                <tr>
+                    <td><code>network</code></td>
+                    <td>A transportation or tariff network, such as OTV, ZVV, etc.</td>
                 </tr>
             </tbody>
         </table>
@@ -1568,6 +1610,7 @@
 
         <h3 id="transport-categories">Categories (transportation means)</h3>
 
+	<p><em class="remark">RB: is it sensible to enumerate these in the first place? I don't like them, because they are totally not standardized and likely very specific to any TO. Am I wrong? If anything, we should provide a resource that returns the available types including a description.</em></p>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -1620,8 +1663,8 @@
         </table>
 
         <h3 id="limit-response">Limit response</h3>
-        <p><em class="remark">IMHO, this is unnecessary and maybe difficuilt to implement use
-            as there is no XPath-like standard for JSON.</em></p>
+        <p><em class="remark">OI: imo this is unnecessary and maybe difficuilt to implement
+            as there is no XPath-like standard for JSON.<br>RB: Not sure if it's complicated. The question is more like: is it needed in the first place? And if yes, why is the fields parameter not just an optional request parameter in the requests? Another issue: if you limit your response and therefore don't get the links, you're f*�#%ed anyway ;-)... Maybe the other guys can comment on whether this was ever used.</em></p>
 
             <p>You can limit the response data with the <code>fields</code> parameter.
             If any <code>fields[]</code> is passed, only the specified fields are in the response.
@@ -1635,20 +1678,19 @@
 
             <pre>
 {
-    "connections":[
-        {
-            "from":{
-                "departure":"2012-05-01T19:42:00+0200",
-            },
-            "to":{
-                "arrival":"2012-05-01T20:15:00+0200",
-            }
+    "connections": [ {
+        "from": {
+            "departure":"2012-05-01T19:42:00+0200",
         },
-    ],
-    //....
+        "to": {
+            "arrival":"2012-05-01T20:15:00+0200",
+        }
+    },
+    {
+        // other connections...
+    } ]
 }
-
-            </pre>
+</pre>
             
             
             <h4>Example Request</h4>
@@ -1658,49 +1700,48 @@
             <h4>Example response</h4>
 
             <pre>
-            
 {
-    "connections":[
-        {
-            "from":{
-                "station":{
-                    "id":"008501120",
-                    "name":"Lausanne",
-                    "score":null,
-                    "coordinate":{
-                        "type":"WGS84",
-                        "x":6.629086,
-                        "y":46.516785
-                    }
-                },
-                "arrival":null,
-                "departure":"2012-05-01T19:42:00+0200",
-                "platform":"5",
-                "prognosis":{
-                    "platform":null,
-                    "arrival":null,
-                    "departure":null,
-                    "capacity1st":"1",
-                    "capacity2nd":"1"
+    "connections": [ {
+        "from": {
+            "station": {
+                "id": "008501120",
+                "name": "Lausanne",
+                "score": null,
+                "coordinate": {
+                    "type": "WGS84",
+                    "x": "6.629086",
+                    "y": "46.516785"
                 }
             },
-            "to":{
-                "station":{
-                    "id":"008501008",
-                    "name":"Gen\u00e8ve",
-                    "score":null,
-                    "coordinate":{
-                        "type":"WGS84",
-                        "x":6.142437,
-                        "y":46.210217
-                    }
-                }
+            "arrival": null,
+            "departure": "2012-05-01T19:42:00+0200",
+            "platform": "5",
+            "prognosis": {
+                "platform": null,
+                "arrival": null,
+                "departure": null,
+                "capacity1st": "1",
+                "capacity2nd": "1"
             }
         },
-    ],
-    // ...
+        "to": {
+            "station": {
+                "id": "008501008",
+                "name": "Gen\u00e8ve",
+                "score": null,
+                "coordinate": {
+                    "type": "WGS84",
+                    "x": "6.142437",
+                    "y": "46.210217"
+                }
+            }
+        }
+    },
+    {
+        // other connections...
+    } ]
 }
-            </pre>
+</pre>
 
         </article>
 
